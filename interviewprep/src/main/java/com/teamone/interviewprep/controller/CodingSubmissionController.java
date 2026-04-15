@@ -6,20 +6,19 @@ import com.teamone.interviewprep.entity.AssessmentSession;
 import com.teamone.interviewprep.entity.CodingChallenge;
 import com.teamone.interviewprep.entity.CodingSubmission;
 import com.teamone.interviewprep.entity.User;
+import com.teamone.interviewprep.enums.SubmissionStatus;
 import com.teamone.interviewprep.exception.ResourceNotFoundException;
 import com.teamone.interviewprep.exception.SessionExpiredException;
 import com.teamone.interviewprep.exception.UnauthorizedException;
 import com.teamone.interviewprep.mapper.CodingSubmissionMapper;
 import com.teamone.interviewprep.security.SecurityUtils;
-import com.teamone.interviewprep.service.AssessmentSessionService;
-import com.teamone.interviewprep.service.CodingChallengeService;
-import com.teamone.interviewprep.service.CodingSubmissionService;
-import com.teamone.interviewprep.service.UserService;
+import com.teamone.interviewprep.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -34,6 +33,8 @@ public class CodingSubmissionController {
     private final AssessmentSessionService assessmentSessionService;
     private final CodingSubmissionMapper codingSubmissionMapper;
 
+    private final AiService aiService;
+
     @PostMapping
     public ResponseEntity<CodingSubmissionResponse> createSubmission(@RequestBody CodingSubmissionRequest request) {
         User user = getAuthenticatedUser();
@@ -47,12 +48,22 @@ public class CodingSubmissionController {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Session not found with id: " + request.getSessionId()
                 ));
+
         if (session.isExpired()) {
             throw new SessionExpiredException("Session has expired");
         }
 
+        if (session.getUser() == null || !session.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedException("Session does not belong to you");
+        }
+
         CodingSubmission submission = codingSubmissionMapper.toEntity(request, user, challenge, session);
+        submission.setStatus(SubmissionStatus.SUBMITTED);
+        submission.setSubmittedAt(LocalDateTime.now());
+
         CodingSubmission savedSubmission = codingSubmissionService.createSubmission(submission);
+
+        aiService.generateCodingFeedback(savedSubmission.getId());
 
         return ResponseEntity.ok(codingSubmissionMapper.toResponse(savedSubmission));
     }
@@ -70,10 +81,18 @@ public class CodingSubmissionController {
 
     @GetMapping("/{id}")
     public ResponseEntity<CodingSubmissionResponse> getSubmissionById(@PathVariable Long id) {
-        return codingSubmissionService.getSubmissionById(id)
-                .map(codingSubmissionMapper::toResponse)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        User user = getAuthenticatedUser();
+
+        CodingSubmission submission = codingSubmissionService.getSubmissionById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Submission not found with id: " + id
+                ));
+
+        if (submission.getUser() == null || !submission.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedException("You are not allowed to view this submission");
+        }
+
+        return ResponseEntity.ok(codingSubmissionMapper.toResponse(submission));
     }
 
     @GetMapping("/me")
@@ -141,6 +160,10 @@ public class CodingSubmissionController {
                 ));
         if (session.isExpired()) {
             throw new SessionExpiredException("Session has expired");
+        }
+
+        if (!session.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedException("Session does not belong to you");
         }
 
         CodingSubmission updatedSubmission = codingSubmissionMapper.toEntity(request, user, challenge, session);

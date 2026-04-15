@@ -1,11 +1,12 @@
-import { useContext, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
-import { login as loginRequest } from "../api/authApi";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { loginUser } from "../api/authApi";
+import { useAuthContext } from "../context/AuthContext";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const location = useLocation();
+  const { login } = useAuthContext();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -15,82 +16,124 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
+  const from = location.state?.from?.pathname || "/dashboard";
 
+  const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [e.target.name]: e.target.value,
     }));
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      const data = await loginRequest(formData);
-      login(data);
-      navigate("/dashboard");
+      const data = await loginUser(formData);
+
+      login({
+        token: data.token,
+        user: {
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
+        },
+      });
+
+      navigate(from, { replace: true });
     } catch (err) {
-      const message =
-        err.response?.data?.message || "Login failed. Please try again.";
-      setError(message);
+      setError(
+        err.response?.data?.message ||
+          "Login failed. Please check your credentials."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Welcome back</h1>
-        <p style={styles.subtitle}>Sign in to continue your interview prep</p>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#f5f7fb",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "2rem",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "460px",
+          background: "#ffffff",
+          borderRadius: "20px",
+          padding: "2rem",
+          boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
+          border: "1px solid #ececec",
+        }}
+      >
+        <h1
+          style={{
+            marginTop: 0,
+            marginBottom: "0.5rem",
+            fontSize: "2rem",
+            color: "#111827",
+          }}
+        >
+          Login
+        </h1>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.field}>
-            <label htmlFor="email" style={styles.label}>
-              Email
-            </label>
+        <p
+          style={{
+            marginTop: 0,
+            marginBottom: "1.5rem",
+            color: "#6b7280",
+          }}
+        >
+          Sign in to continue your interview prep.
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: "1rem" }}>
+            <label style={labelStyle}>Email</label>
             <input
-              id="email"
-              name="email"
               type="email"
-              placeholder="you@example.com"
+              name="email"
               value={formData.email}
               onChange={handleChange}
               required
-              style={styles.input}
+              style={inputStyle}
             />
           </div>
 
-          <div style={styles.field}>
-            <label htmlFor="password" style={styles.label}>
-              Password
-            </label>
+          <div style={{ marginBottom: "1.25rem" }}>
+            <label style={labelStyle}>Password</label>
             <input
-              id="password"
-              name="password"
               type="password"
-              placeholder="Enter your password"
+              name="password"
               value={formData.password}
               onChange={handleChange}
               required
-              style={styles.input}
+              style={inputStyle}
             />
           </div>
 
-          {error && <p style={styles.error}>{error}</p>}
+          {error && (
+            <p style={{ color: "crimson", marginBottom: "1rem" }}>{error}</p>
+          )}
 
-          <button type="submit" disabled={loading} style={styles.button}>
-            {loading ? "Signing in..." : "Sign In"}
+          <button type="submit" disabled={loading} style={primaryButtonStyle}>
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
-        <p style={styles.footerText}>
-          Don&apos;t have an account?{" "}
-          <Link to="/register" style={styles.link}>
+        <p style={{ marginTop: "1rem", color: "#6b7280" }}>
+          Don’t have an account?{" "}
+          <Link to="/register" style={linkStyle}>
             Create one
           </Link>
         </p>
@@ -99,76 +142,37 @@ export default function LoginPage() {
   );
 }
 
-const styles = {
-  page: {
-    minHeight: "100vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "#f5f7fb",
-    padding: "24px",
-  },
-  card: {
-    width: "100%",
-    maxWidth: "420px",
-    background: "#ffffff",
-    padding: "32px",
-    borderRadius: "16px",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-  },
-  title: {
-    margin: 0,
-    marginBottom: "8px",
-    fontSize: "28px",
-  },
-  subtitle: {
-    marginTop: 0,
-    marginBottom: "24px",
-    color: "#666",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-  },
-  field: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
-  },
-  label: {
-    fontWeight: "600",
-  },
-  input: {
-    padding: "12px 14px",
-    borderRadius: "10px",
-    border: "1px solid #ccc",
-    fontSize: "14px",
-    outline: "none",
-  },
-  button: {
-    marginTop: "8px",
-    padding: "12px 16px",
-    borderRadius: "10px",
-    border: "none",
-    background: "#111827",
-    color: "#fff",
-    fontWeight: "600",
-    cursor: "pointer",
-  },
-  error: {
-    color: "#b91c1c",
-    margin: 0,
-    fontSize: "14px",
-  },
-  footerText: {
-    marginTop: "20px",
-    textAlign: "center",
-    color: "#666",
-  },
-  link: {
-    color: "#111827",
-    fontWeight: "600",
-    textDecoration: "none",
-  },
+const labelStyle = {
+  display: "block",
+  marginBottom: "0.45rem",
+  fontWeight: 600,
+  color: "#111827",
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: "0.85rem 1rem",
+  borderRadius: "12px",
+  border: "1px solid #d1d5db",
+  outline: "none",
+  fontSize: "1rem",
+  boxSizing: "border-box",
+};
+
+const primaryButtonStyle = {
+  width: "100%",
+  border: "none",
+  background: "#111827",
+  color: "#ffffff",
+  padding: "0.95rem 1rem",
+  borderRadius: "12px",
+  cursor: "pointer",
+  fontWeight: 600,
+  fontSize: "1rem",
+};
+
+const linkStyle = {
+  color: "#111827",
+  fontWeight: 600,
+  textDecoration: "none",
 };
