@@ -17,4 +17,9 @@ spring:
     name: interviewprep
 
 server:
-  port: 8080
+  port: 8099
+
+# 🔥 ADD THIS
+jwt:
+  secret: mysupersecretkeymysupersecretkeymysupersecretkey
+  expiration: 86400000
