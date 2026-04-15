@@ -1,11 +1,11 @@
 import client from "./client";
 
-export const login = async (credentials) => {
-  const response = await client.post("/api/auth/login", credentials);
+export async function loginUser(credentials) {
+  const response = await client.post("/auth/login", credentials);
   return response.data;
-};
+}
 
-export const register = async (payload) => {
-  const response = await client.post("/api/auth/register", payload);
+export async function registerUser(userData) {
+  const response = await client.post("/auth/register", userData);
   return response.data;
-};
+}

@@ -19,7 +19,10 @@ spring:
 server:
   port: 8099
 
-# 🔥 ADD THIS
+openai:
+  api-key: ${OPENAI_API_KEY}
+  model: gpt-5.4-mini
+
 jwt:
   secret: mysupersecretkeymysupersecretkeymysupersecretkey
   expiration: 86400000

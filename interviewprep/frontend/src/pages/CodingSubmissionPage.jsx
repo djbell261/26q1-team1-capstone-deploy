@@ -7,29 +7,29 @@ function EmptyState({ text }) {
   return <p style={{ margin: 0, color: "#6b7280" }}>{text}</p>;
 }
 
-export default function RecommendationPage() {
+export default function CodingSubmissionPage() {
   const navigate = useNavigate();
   const { logout } = useAuthContext();
 
-  const [recommendations, setRecommendations] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     let isMounted = true;
 
-    async function loadRecommendations() {
+    async function loadCodingSubmissions() {
       try {
         setLoading(true);
         setError("");
 
-        const response = await client.get("/recommendations/me");
+        const response = await client.get("/coding-submissions/me");
 
         if (isMounted) {
-          setRecommendations(response.data ?? []);
+          setSubmissions(response.data ?? []);
         }
       } catch (err) {
-        console.error("Failed to load recommendations:", err);
+        console.error("Failed to load coding submissions:", err);
 
         if (err.response?.status === 401 || err.response?.status === 403) {
           logout();
@@ -38,7 +38,7 @@ export default function RecommendationPage() {
         }
 
         if (isMounted) {
-          setError("Failed to load recommendations.");
+          setError("Failed to load coding submissions.");
         }
       } finally {
         if (isMounted) {
@@ -47,7 +47,7 @@ export default function RecommendationPage() {
       }
     }
 
-    loadRecommendations();
+    loadCodingSubmissions();
 
     return () => {
       isMounted = false;
@@ -86,7 +86,7 @@ export default function RecommendationPage() {
                 color: "#111827",
               }}
             >
-              Recommendations
+              Coding Submissions
             </h1>
             <p
               style={{
@@ -95,7 +95,7 @@ export default function RecommendationPage() {
                 fontSize: "1rem",
               }}
             >
-              Your personalized interview prep guidance.
+              Review your past coding practice attempts.
             </p>
           </div>
 
@@ -109,7 +109,7 @@ export default function RecommendationPage() {
 
         {loading && (
           <div style={messageCardStyle}>
-            <p style={{ margin: 0 }}>Loading recommendations...</p>
+            <p style={{ margin: 0 }}>Loading coding submissions...</p>
           </div>
         )}
 
@@ -119,22 +119,22 @@ export default function RecommendationPage() {
           </div>
         )}
 
-        {!loading && !error && recommendations.length === 0 && (
+        {!loading && !error && submissions.length === 0 && (
           <div style={messageCardStyle}>
-            <EmptyState text="No recommendations yet." />
+            <EmptyState text="No coding submissions yet." />
           </div>
         )}
 
-        {!loading && !error && recommendations.length > 0 && (
+        {!loading && !error && submissions.length > 0 && (
           <div
             style={{
               display: "grid",
               gap: "1rem",
             }}
           >
-            {recommendations.map((recommendation, index) => (
+            {submissions.map((submission, index) => (
               <div
-                key={recommendation.id ?? `recommendation-${index}`}
+                key={submission.id ?? `coding-submission-${index}`}
                 style={cardStyle}
               >
                 <div
@@ -144,7 +144,6 @@ export default function RecommendationPage() {
                     alignItems: "flex-start",
                     gap: "1rem",
                     flexWrap: "wrap",
-                    marginBottom: "1rem",
                   }}
                 >
                   <div>
@@ -155,11 +154,19 @@ export default function RecommendationPage() {
                         color: "#111827",
                       }}
                     >
-                      Recommendation #{recommendation.id ?? index + 1}
+                      Submission #{submission.id ?? index + 1}
                     </h2>
 
                     <p style={metaTextStyle}>
-                      User ID: {recommendation.userId ?? recommendation.user?.id ?? "N/A"}
+                      Challenge ID:{" "}
+                      {submission.challengeId ??
+                        submission.challenge?.id ??
+                        "N/A"}
+                    </p>
+
+                    <p style={metaTextStyle}>
+                      Session ID:{" "}
+                      {submission.sessionId ?? submission.session?.id ?? "N/A"}
                     </p>
                   </div>
 
@@ -167,44 +174,42 @@ export default function RecommendationPage() {
                     style={{
                       padding: "0.45rem 0.75rem",
                       borderRadius: "999px",
-                      background: "#ecfeff",
-                      color: "#155e75",
+                      background: "#eef2ff",
+                      color: "#3730a3",
                       fontWeight: 600,
                       fontSize: "0.9rem",
                     }}
                   >
-                    Personalized
+                    Coding Practice
                   </div>
                 </div>
 
                 <div
                   style={{
+                    marginTop: "1rem",
                     display: "grid",
-                    gap: "0.9rem",
+                    gap: "0.65rem",
                   }}
                 >
                   <div>
-                    <p style={labelStyle}>Title</p>
-                    <p style={valueStyle}>
-                      {recommendation.title || "Untitled Recommendation"}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p style={labelStyle}>Recommendation</p>
+                    <p style={labelStyle}>Code</p>
                     <div style={contentBoxStyle}>
-                      <p
+                      <pre
                         style={{
                           margin: 0,
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                          fontFamily:
+                            "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                          fontSize: "0.92rem",
                           color: "#111827",
-                          lineHeight: 1.6,
                         }}
                       >
-                        {recommendation.message ||
-                          recommendation.content ||
-                          recommendation.text ||
-                          "Recommendation content is available."}
-                      </p>
+                        {submission.code ||
+                          submission.solution ||
+                          submission.answer ||
+                          "No code available."}
+                      </pre>
                     </div>
                   </div>
 
@@ -217,16 +222,23 @@ export default function RecommendationPage() {
                     }}
                   >
                     <div style={smallInfoBoxStyle}>
-                      <p style={labelStyle}>Category</p>
+                      <p style={labelStyle}>Language</p>
                       <p style={valueStyle}>
-                        {recommendation.category || "General"}
+                        {submission.language || "N/A"}
                       </p>
                     </div>
 
                     <div style={smallInfoBoxStyle}>
-                      <p style={labelStyle}>Priority</p>
+                      <p style={labelStyle}>Status</p>
                       <p style={valueStyle}>
-                        {recommendation.priority || "Standard"}
+                        {submission.status || "Submitted"}
+                      </p>
+                    </div>
+
+                    <div style={smallInfoBoxStyle}>
+                      <p style={labelStyle}>Score</p>
+                      <p style={valueStyle}>
+                        {submission.score ?? "N/A"}
                       </p>
                     </div>
                   </div>

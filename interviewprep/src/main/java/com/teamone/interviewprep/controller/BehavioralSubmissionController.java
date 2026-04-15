@@ -6,6 +6,7 @@ import com.teamone.interviewprep.entity.AssessmentSession;
 import com.teamone.interviewprep.entity.BehavioralQuestion;
 import com.teamone.interviewprep.entity.BehavioralSubmission;
 import com.teamone.interviewprep.entity.User;
+import com.teamone.interviewprep.enums.SubmissionStatus;
 import com.teamone.interviewprep.exception.ResourceNotFoundException;
 import com.teamone.interviewprep.exception.SessionExpiredException;
 import com.teamone.interviewprep.exception.UnauthorizedException;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -47,8 +49,15 @@ public class BehavioralSubmissionController {
             throw new SessionExpiredException("Session has expired");
         }
 
+        if (!session.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedException("Session does not belong to you");
+        }
+
         BehavioralSubmission submission = behavioralSubmissionMapper.toEntity(request, user, question, session);
         BehavioralSubmission savedSubmission = behavioralSubmissionService.createSubmission(submission);
+
+        submission.setStatus(SubmissionStatus.SUBMITTED);
+        submission.setSubmittedAt(LocalDateTime.now());
 
         return ResponseEntity.ok(behavioralSubmissionMapper.toResponse(savedSubmission));
     }
@@ -67,10 +76,18 @@ public class BehavioralSubmissionController {
 
     @GetMapping("/{id}")
     public ResponseEntity<BehavioralSubmissionResponse> getSubmissionById(@PathVariable Long id) {
-        return behavioralSubmissionService.getSubmissionById(id)
-                .map(behavioralSubmissionMapper::toResponse)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        User user = getAuthenticatedUser();
+
+        BehavioralSubmission submission = behavioralSubmissionService.getSubmissionById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Submission not found with id: " + id
+                ));
+
+        if (submission.getUser() == null || !submission.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedException("You are not allowed to view this submission");
+        }
+
+        return ResponseEntity.ok(behavioralSubmissionMapper.toResponse(submission));
     }
 
     @PutMapping("/{id}")
@@ -98,6 +115,10 @@ public class BehavioralSubmissionController {
                 ));
         if (session.isExpired()) {
             throw new SessionExpiredException("Session has expired");
+        }
+
+        if (!session.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedException("Session does not belong to you");
         }
 
         BehavioralSubmission updated = behavioralSubmissionMapper.toEntity(request, user, question, session);

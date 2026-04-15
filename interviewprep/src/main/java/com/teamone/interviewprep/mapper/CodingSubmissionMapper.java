@@ -17,10 +17,15 @@ public class CodingSubmissionMapper {
                                      User user,
                                      CodingChallenge challenge,
                                      AssessmentSession session) {
+
+        SubmissionStatus status = (request.getStatus() == null || request.getStatus().isBlank())
+                ? SubmissionStatus.SUBMITTED
+                : SubmissionStatus.valueOf(request.getStatus().toUpperCase());
+
         return CodingSubmission.builder()
                 .code(request.getCode())
                 .score(request.getScore())
-                .status(SubmissionStatus.valueOf(request.getStatus().toUpperCase()))
+                .status(status)
                 .submittedAt(request.getSubmittedAt())
                 .timeSpentSeconds(request.getTimeSpentSeconds())
                 .user(user)
