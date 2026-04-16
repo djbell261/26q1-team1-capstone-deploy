@@ -23,7 +23,6 @@ export default function CodingSubmissionPage() {
     }
   };
 
-  // ===== INLINE STYLES (consistent system) =====
   const styles = {
     page: {
       maxWidth: "1000px",

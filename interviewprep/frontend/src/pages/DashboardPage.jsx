@@ -42,7 +42,6 @@ export default function DashboardPage() {
     navigate("/login");
   };
 
-  // ===== INLINE STYLES (consistent system) =====
   const styles = {
     page: {
       maxWidth: "1100px",

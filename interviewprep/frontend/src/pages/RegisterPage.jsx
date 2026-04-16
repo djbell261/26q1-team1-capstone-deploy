@@ -47,7 +47,6 @@ export default function RegisterPage() {
     }
   };
 
-  // ===== CONSISTENT AUTH THEME (matches LoginPage) =====
   const styles = {
     page: {
       minHeight: "100vh",

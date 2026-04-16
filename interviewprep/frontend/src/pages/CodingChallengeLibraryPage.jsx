@@ -50,7 +50,6 @@ export default function CodingChallengeLibraryPage() {
     }
   };
 
-  // ===== INLINE STYLES (consistent with your other pages) =====
   const styles = {
     page: {
       maxWidth: "1000px",

@@ -51,7 +51,6 @@ export default function RecommendationPage() {
     };
   }, [logout, navigate]);
 
-  // ===== CONSISTENT UI THEME =====
   const styles = {
     page: {
       maxWidth: "1100px",

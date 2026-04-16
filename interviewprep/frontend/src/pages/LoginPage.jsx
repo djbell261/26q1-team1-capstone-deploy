@@ -39,7 +39,6 @@ export default function LoginPage() {
     }
   };
 
-  // ===== INLINE STYLES (consistent SaaS auth theme) =====
   const styles = {
     page: {
       minHeight: "100vh",

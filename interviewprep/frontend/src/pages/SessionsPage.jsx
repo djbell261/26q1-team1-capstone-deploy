@@ -50,7 +50,6 @@ export default function SessionsPage() {
     };
   }, [logout, navigate]);
 
-  // ===== CONSISTENT THEME =====
   const styles = {
     page: {
       maxWidth: "1100px",

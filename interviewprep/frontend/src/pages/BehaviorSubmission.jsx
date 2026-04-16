@@ -23,7 +23,6 @@ export default function BehaviorSubmission() {
     }
   };
 
-  // ===== INLINE STYLES (consistent with your other pages) =====
   const styles = {
     page: {
       maxWidth: "1000px",
