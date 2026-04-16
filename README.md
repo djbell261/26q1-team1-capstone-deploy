@@ -122,7 +122,7 @@ Examples:
 
 ### Coding Flow
 
-```text
+ 
 User submits code
 → Stored in database
 → AI evaluates
