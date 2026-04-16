@@ -31,9 +31,12 @@ public class BehavioralSubmissionController {
     private final BehavioralQuestionService behavioralQuestionService;
     private final AssessmentSessionService assessmentSessionService;
     private final BehavioralSubmissionMapper behavioralSubmissionMapper;
+    private final AiService aiService;
 
     @PostMapping
-    public ResponseEntity<BehavioralSubmissionResponse> createSubmission(@RequestBody BehavioralSubmissionRequest request) {
+    public ResponseEntity<BehavioralSubmissionResponse> createSubmission(
+            @RequestBody BehavioralSubmissionRequest request) {
+
         User user = getAuthenticatedUser();
 
         BehavioralQuestion question = behavioralQuestionService.getQuestionById(request.getQuestionId())
@@ -42,24 +45,27 @@ public class BehavioralSubmissionController {
                 ));
 
         AssessmentSession session = assessmentSessionService.getSessionById(request.getSessionId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Session not found with id: " + request.getSessionId()
-                ));
-        if (session.isExpired()) {
-            throw new SessionExpiredException("Session has expired");
-        }
+                .orElseThrow(() -> new ResourceNotFoundException("Session not found"));
 
         if (!session.getUser().getId().equals(user.getId())) {
-            throw new UnauthorizedException("Session does not belong to you");
+            throw new UnauthorizedException("Session does not belong to user");
+        }
+
+        if (session.getExpiresAt() != null && session.getExpiresAt().isBefore(java.time.LocalDateTime.now())) {
+            throw new RuntimeException("Session has expired");
         }
 
         BehavioralSubmission submission = behavioralSubmissionMapper.toEntity(request, user, question, session);
-        BehavioralSubmission savedSubmission = behavioralSubmissionService.createSubmission(submission);
-
         submission.setStatus(SubmissionStatus.SUBMITTED);
-        submission.setSubmittedAt(LocalDateTime.now());
 
-        return ResponseEntity.ok(behavioralSubmissionMapper.toResponse(savedSubmission));
+        BehavioralSubmission saved = behavioralSubmissionService.createSubmission(submission);
+
+        aiService.generateBehavioralFeedback(saved.getId());
+
+        BehavioralSubmission updated = behavioralSubmissionService.getSubmissionById(saved.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Submission not found after AI processing"));
+
+        return ResponseEntity.ok(behavioralSubmissionMapper.toResponse(updated));
     }
 
     @GetMapping("/me")

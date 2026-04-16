@@ -12,4 +12,6 @@ public interface RecommendationService {
     List<Recommendation> getRecommendationsByUserId(Long userId);
     Recommendation updateRecommendation(Long id, Recommendation updatedRecommendation);
     void deleteRecommendation(Long id);
+
+    List<Recommendation> generateRecommendationsForUser(Long userId);
 }
