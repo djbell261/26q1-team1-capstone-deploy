@@ -228,7 +228,7 @@ frontend/
 
 ### Backend
 
-```bash
+ 
 cd backend
 mvn clean install
 mvn spring-boot:run
@@ -242,7 +242,7 @@ mvn spring-boot:run
 
 ## Frontend
 
-```bash
+ 
 cd frontend
 npm install
 npm run dev
