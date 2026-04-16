@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/behavioral-questions")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:5173")
 public class BehavioralQuestionController {
 
     private final BehavioralQuestionService behavioralQuestionService;
