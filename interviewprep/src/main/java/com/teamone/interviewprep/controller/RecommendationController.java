@@ -44,6 +44,18 @@ public class RecommendationController {
         return ResponseEntity.ok(recommendations);
     }
 
+    @PostMapping("/generate/me")
+    public ResponseEntity<List<RecommendationResponse>> generateMyRecommendations() {
+        User user = getAuthenticatedUser();
+
+        List<RecommendationResponse> recommendations = recommendationService.generateRecommendationsForUser(user.getId())
+                .stream()
+                .map(recommendationMapper::toResponse)
+                .toList();
+
+        return ResponseEntity.ok(recommendations);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<RecommendationResponse> getRecommendationById(@PathVariable Long id) {
         User user = getAuthenticatedUser();

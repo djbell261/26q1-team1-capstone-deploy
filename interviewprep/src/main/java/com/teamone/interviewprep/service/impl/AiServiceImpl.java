@@ -132,32 +132,59 @@ public class AiServiceImpl implements AiService {
         String code = submission.getCode() != null ? submission.getCode() : "";
 
         String prompt = """
-            You are evaluating a candidate's coding interview submission.
+System:
+You are a strict senior software engineer evaluating a coding interview submission.
+Be fair, technical, and evidence-based.
+Do not reward code that does not actually solve the problem.
+Do not assume missing logic exists.
+Judge as an interviewer, not as a tutor.
 
-            Return structured feedback with:
-            - aiScore: a number from 0 to 100
-            - summary: concise overall evaluation
-            - strengths: strongest parts of the submission
-            - weaknesses: biggest problems in correctness, efficiency, readability, or edge cases
-            - recommendations: actionable next steps
+User:
+Evaluate this coding submission.
 
-            Evaluate based on:
-            - correctness
-            - efficiency
-            - readability and style
-            - edge-case handling
-            - likely bugs
+Problem:
+Title: %s
+Difficulty: %s
+Category: %s
+Description:
+%s
 
-            Challenge Title: %s
-            Difficulty: %s
-            Category: %s
+Candidate Code:
+%s
 
-            Challenge Description:
-            %s
+Return structured feedback with:
+- aiScore (0.0 to 10.0)
+- summary
+- strengths
+- weaknesses
+- recommendations
 
-            Candidate Code:
-            %s
-            """.formatted(title, difficulty, category, description, code);
+Evaluation criteria:
+- correctness
+- efficiency
+- readability
+- edge-case handling
+- interview readiness
+
+Scoring rubric (internal use only):
+- correctness: 0–4
+- efficiency: 0–2.5
+- code quality: 0–1.5
+- edge cases: 0–1
+- interview readiness: 0–1
+
+Rules:
+- First determine if the solution actually solves the problem
+- If incorrect, score must be <= 3.0
+- If partially correct, score must be <= 6.0
+- Only fully correct + efficient solutions can exceed 8.0
+- Mention likely time and space complexity
+- State whether the solution is brute force, improved, or optimal
+- Explicitly check for edge cases (null, empty, boundaries, duplicates)
+- Penalize incomplete, placeholder, or uncompilable code heavily
+- Do not invent test results not supported by the code
+- Keep feedback concise, technical, and actionable
+""".formatted(title, difficulty, category, description, code);
 
         var response = openAIClient.responses().create(
                 ResponseCreateParams.builder()
@@ -183,31 +210,65 @@ public class AiServiceImpl implements AiService {
         String answer = submission.getResponseText() != null ? submission.getResponseText() : "";
 
         String prompt = """
-            You are evaluating a candidate's behavioral interview response.
+System:
+You are a strict senior software engineer conducting a behavioral interview.
+Evaluate the candidate as if this were a real high-bar technical interview.
 
-            Return structured feedback with:
-            - aiScore: a number from 0 to 100
-            - summary: concise overall evaluation
-            - strengths: strongest parts of the response
-            - weaknesses: biggest problems in STAR structure, clarity, relevance, ownership, or impact
-            - recommendations: actionable next steps
+Be honest, critical, and evidence-based.
+Do not give inflated scores.
+Do not assume missing details exist.
+Judge only what is written.
 
-            Evaluate based on:
-            - STAR structure
-            - clarity
-            - relevance
-            - ownership
-            - quality of result or impact
+User:
+Evaluate this behavioral interview response.
 
-            Question Category: %s
-            Difficulty: %s
+Interview Question:
+%s
 
-            Interview Question:
-            %s
+Category: %s
+Difficulty: %s
 
-            Candidate Response:
-            %s
-            """.formatted(category, difficulty, question, answer);
+Candidate Response:
+%s
+
+Return structured feedback with:
+- aiScore (0 to 10)
+- summary
+- strengths
+- weaknesses
+- recommendations
+
+Evaluation criteria:
+- STAR structure (Situation, Task, Action, Result)
+- clarity and communication
+- relevance to the question
+- ownership and accountability
+- impact and results
+- depth of technical or professional reasoning
+
+Scoring rubric (internal use only):
+- structure (0–2)
+- clarity (0–2)
+- relevance (0–2)
+- ownership (0–2)
+- impact (0–2)
+
+Rules:
+- If STAR structure is missing or weak, penalize heavily
+- If response is vague or generic, penalize heavily
+- If no clear result or impact is described, score must be <= 6
+- If response lacks ownership ("we" vs "I"), penalize
+- If answer feels memorized or artificial, note it
+- Only strong, specific, well-structured answers should score above 8
+
+Additional checks:
+- Is the situation clearly explained?
+- Are actions specific or vague?
+- Is the result measurable or meaningful?
+- Does the answer demonstrate growth or learning?
+
+Keep feedback concise, direct, and interview-focused.
+""".formatted(question, category, difficulty, answer);
 
         var response = openAIClient.responses().create(
                 ResponseCreateParams.builder()
