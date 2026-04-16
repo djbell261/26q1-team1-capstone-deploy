@@ -48,7 +48,9 @@ export default function CodingChallengeSessionPage() {
 
   const fetchFeedback = async (submissionId) => {
     try {
-      const response = await api.get(`/api/feedback/coding-submission/${submissionId}`);
+      const response = await api.get(
+        `/api/feedback/coding-submission/${submissionId}`
+      );
       setFeedback(response.data);
     } catch (err) {
       console.error(err);
@@ -86,7 +88,6 @@ export default function CodingChallengeSessionPage() {
       await fetchFeedback(response.data.id);
       await api.post("/api/recommendations/generate/me");
     } catch (err) {
-      console.error(err);
       setError(
         err.response?.data?.message ||
           err.response?.data ||
@@ -98,46 +99,135 @@ export default function CodingChallengeSessionPage() {
     }
   };
 
+  const styles = {
+    page: {
+      maxWidth: "1000px",
+      margin: "40px auto",
+      padding: "20px",
+      fontFamily: "Arial, sans-serif",
+      color: "#1f2937",
+    },
+
+    title: {
+      textAlign: "center",
+      fontSize: "28px",
+      marginBottom: "20px",
+    },
+
+    topBar: {
+      marginBottom: "16px",
+    },
+
+    button: {
+      padding: "10px 14px",
+      border: "none",
+      borderRadius: "8px",
+      cursor: "pointer",
+      backgroundColor: "#111827",
+      color: "white",
+    },
+
+    card: {
+      background: "white",
+      borderRadius: "12px",
+      padding: "18px",
+      marginBottom: "16px",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+    },
+
+    expiredCard: {
+      border: "1px solid #ef4444",
+    },
+
+    textarea: {
+      width: "100%",
+      marginTop: "10px",
+      padding: "12px",
+      borderRadius: "8px",
+      border: "1px solid #d1d5db",
+      fontFamily: "monospace",
+      fontSize: "14px",
+      minHeight: "300px",
+      resize: "vertical",
+    },
+
+    error: {
+      color: "red",
+      marginTop: "10px",
+    },
+  };
+
   if (!session || !challenge) {
     return (
-      <div className="page-container">
-        <p>Session or challenge data is missing. Go back and start the challenge again.</p>
-        <button onClick={() => navigate("/coding-challenges")}>Back to Challenges</button>
+      <div style={styles.page}>
+        <p>
+          Session or challenge data is missing. Go back and start again.
+        </p>
+        <button
+          style={styles.button}
+          onClick={() => navigate("/coding-challenges")}
+        >
+          Back to Challenges
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="page-container">
-      <h2>Coding Session</h2>
+    <div style={styles.page}>
+      <h2 style={styles.title}>Coding Session</h2>
 
-      <div style={{ marginBottom: "16px" }}>
-        <button onClick={() => navigate("/coding-challenges")}>Back to Challenges</button>
+      {/* Back Button */}
+      <div style={styles.topBar}>
+        <button
+          style={styles.button}
+          onClick={() => navigate("/coding-challenges")}
+        >
+          Back to Challenges
+        </button>
       </div>
 
-      <div className="simple-card">
-        <p><strong>Session ID:</strong> {session.id}</p>
-        <p><strong>Time Left:</strong> {sessionExpired ? "Expired" : timeLeft || "Loading timer..."}</p>
+      {/* Session Info */}
+      <div style={styles.card}>
+        <p>
+          <strong>Session ID:</strong> {session.id}
+        </p>
+        <p>
+          <strong>Time Left:</strong>{" "}
+          {sessionExpired ? "Expired" : timeLeft || "Loading timer..."}
+        </p>
       </div>
 
+      {/* Expired Warning */}
       {sessionExpired && (
-        <div className="simple-card" style={{ border: "1px solid red" }}>
+        <div style={{ ...styles.card, ...styles.expiredCard }}>
           <h3>Session Expired</h3>
           <p>Your time is up. You can no longer submit this challenge.</p>
         </div>
       )}
 
-      <div className="simple-card">
+      {/* Challenge Info */}
+      <div style={styles.card}>
         <h3>{challenge.title}</h3>
         <p>{challenge.description || "No description"}</p>
-        <p><strong>Difficulty:</strong> {challenge.difficulty}</p>
-        <p><strong>Category:</strong> {challenge.category}</p>
-        <p><strong>Time Limit:</strong> {challenge.timeLimitMinutes || 30} minutes</p>
+        <p>
+          <strong>Difficulty:</strong> {challenge.difficulty}
+        </p>
+        <p>
+          <strong>Category:</strong> {challenge.category}
+        </p>
+        <p>
+          <strong>Time Limit:</strong>{" "}
+          {challenge.timeLimitMinutes || 30} minutes
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="simple-card">
+      {/* Code Editor */}
+      <form onSubmit={handleSubmit} style={styles.card}>
         <label>Your Code</label>
+
         <textarea
+          style={styles.textarea}
           rows="18"
           value={code}
           onChange={(e) => setCode(e.target.value)}
@@ -145,9 +235,10 @@ export default function CodingChallengeSessionPage() {
           disabled={sessionExpired}
         />
 
-        {error && <p>{error}</p>}
+        {error && <p style={styles.error}>{error}</p>}
 
         <button
+          style={{ ...styles.button, marginTop: "10px" }}
           type="submit"
           disabled={submitting || sessionExpired || !code.trim()}
         >
@@ -159,25 +250,47 @@ export default function CodingChallengeSessionPage() {
         </button>
       </form>
 
+      {/* Submission */}
       {submission && (
-        <div className="simple-card">
+        <div style={styles.card}>
           <h3>Submission Saved</h3>
-          <p><strong>Submission ID:</strong> {submission.id}</p>
-          <p><strong>Status:</strong> {submission.status}</p>
-          <p><strong>Submitted At:</strong> {submission.submittedAt}</p>
-          <p><strong>Score:</strong> {submission.score ?? "Pending"}</p>
+          <p>
+            <strong>Submission ID:</strong> {submission.id}
+          </p>
+          <p>
+            <strong>Status:</strong> {submission.status}
+          </p>
+          <p>
+            <strong>Submitted At:</strong> {submission.submittedAt}
+          </p>
+          <p>
+            <strong>Score:</strong> {submission.score ?? "Pending"}
+          </p>
         </div>
       )}
 
+      {/* Feedback */}
       {feedback && (
-        <div className="simple-card">
+        <div style={styles.card}>
           <h3>AI Feedback</h3>
-          <p><strong>AI Score:</strong> {feedback.aiScore}</p>
-          <p><strong>Summary:</strong> {feedback.summary}</p>
-          <p><strong>Strengths:</strong> {feedback.strengths}</p>
-          <p><strong>Weaknesses:</strong> {feedback.weaknesses}</p>
-          <p><strong>Recommendations:</strong> {feedback.recommendations}</p>
-          <p><strong>Status:</strong> {feedback.status}</p>
+          <p>
+            <strong>AI Score:</strong> {feedback.aiScore}
+          </p>
+          <p>
+            <strong>Summary:</strong> {feedback.summary}
+          </p>
+          <p>
+            <strong>Strengths:</strong> {feedback.strengths}
+          </p>
+          <p>
+            <strong>Weaknesses:</strong> {feedback.weaknesses}
+          </p>
+          <p>
+            <strong>Recommendations:</strong> {feedback.recommendations}
+          </p>
+          <p>
+            <strong>Status:</strong> {feedback.status}
+          </p>
         </div>
       )}
     </div>

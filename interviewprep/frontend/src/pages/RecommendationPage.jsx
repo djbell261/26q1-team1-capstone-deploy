@@ -30,8 +30,6 @@ export default function RecommendationPage() {
           setRecommendations(response.data ?? []);
         }
       } catch (err) {
-        console.error("Failed to load recommendations:", err);
-
         if (err.response?.status === 401 || err.response?.status === 403) {
           logout();
           navigate("/login", { replace: true });
@@ -42,9 +40,7 @@ export default function RecommendationPage() {
           setError("Failed to load recommendations.");
         }
       } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        if (isMounted) setLoading(false);
       }
     }
 
@@ -55,251 +51,209 @@ export default function RecommendationPage() {
     };
   }, [logout, navigate]);
 
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#f5f7fb",
-        padding: "2rem",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "1rem",
-            marginBottom: "2rem",
-            flexWrap: "wrap",
-          }}
-        >
-          <div>
-            <h1
-              style={{
-                margin: 0,
-                fontSize: "2.5rem",
-                color: "#111827",
-              }}
-            >
-              Recommendations
-            </h1>
-            <p
-              style={{
-                margin: "0.5rem 0 0",
-                color: "#6b7280",
-                fontSize: "1rem",
-              }}
-            >
-              Your personalized interview prep guidance.
-            </p>
-          </div>
+  // ===== CONSISTENT UI THEME =====
+  const styles = {
+    page: {
+      maxWidth: "1100px",
+      margin: "40px auto",
+      padding: "20px",
+      fontFamily: "Arial, sans-serif",
+      color: "#1f2937",
+    },
 
-          <button
-            onClick={() => navigate("/dashboard")}
-            style={topButtonStyle}
-          >
-            Back to Dashboard
-          </button>
+    header: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      flexWrap: "wrap",
+      gap: "16px",
+      marginBottom: "24px",
+    },
+
+    title: {
+      fontSize: "32px",
+      margin: 0,
+    },
+
+    subtitle: {
+      margin: "6px 0 0",
+      color: "#6b7280",
+    },
+
+    button: {
+      border: "none",
+      background: "#111827",
+      color: "#fff",
+      padding: "10px 14px",
+      borderRadius: "8px",
+      cursor: "pointer",
+    },
+
+    grid: {
+      display: "grid",
+      gap: "16px",
+    },
+
+    card: {
+      background: "#fff",
+      borderRadius: "12px",
+      padding: "18px",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+    },
+
+    badge: {
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#ecfeff",
+      color: "#155e75",
+      fontWeight: 600,
+      fontSize: "12px",
+      whiteSpace: "nowrap",
+    },
+
+    sectionTitle: {
+      margin: "0 0 8px",
+      fontSize: "18px",
+    },
+
+    box: {
+      background: "#f9fafb",
+      border: "1px solid #e5e7eb",
+      borderRadius: "10px",
+      padding: "12px",
+    },
+
+    label: {
+      margin: 0,
+      fontSize: "12px",
+      color: "#6b7280",
+      fontWeight: 600,
+    },
+
+    value: {
+      margin: "4px 0 0",
+      fontSize: "14px",
+      color: "#111827",
+    },
+
+    error: {
+      color: "crimson",
+    },
+  };
+
+  return (
+    <div style={styles.page}>
+      {/* HEADER */}
+      <div style={styles.header}>
+        <div>
+          <h1 style={styles.title}>Recommendations</h1>
+          <p style={styles.subtitle}>
+            Your personalized interview prep guidance.
+          </p>
         </div>
 
-        {loading && (
-          <div style={messageCardStyle}>
-            <p style={{ margin: 0 }}>Loading recommendations...</p>
-          </div>
-        )}
+        <button style={styles.button} onClick={() => navigate("/dashboard")}>
+          Back to Dashboard
+        </button>
+      </div>
 
-        {!loading && error && (
-          <div style={messageCardStyle}>
-            <p style={{ margin: 0, color: "crimson" }}>{error}</p>
-          </div>
-        )}
+      {/* LOADING */}
+      {loading && (
+        <div style={styles.card}>
+          <p style={{ margin: 0 }}>Loading recommendations...</p>
+        </div>
+      )}
 
-        {!loading && !error && recommendations.length === 0 && (
-          <div style={messageCardStyle}>
-            <EmptyState text="No recommendations yet." />
-          </div>
-        )}
+      {/* ERROR */}
+      {!loading && error && (
+        <div style={styles.card}>
+          <p style={styles.error}>{error}</p>
+        </div>
+      )}
 
-        {!loading && !error && recommendations.length > 0 && (
-          <div
-            style={{
-              display: "grid",
-              gap: "1rem",
-            }}
-          >
-            {recommendations.map((recommendation, index) => (
+      {/* EMPTY */}
+      {!loading && !error && recommendations.length === 0 && (
+        <div style={styles.card}>
+          <EmptyState text="No recommendations yet." />
+        </div>
+      )}
+
+      {/* LIST */}
+      {!loading && !error && recommendations.length > 0 && (
+        <div style={styles.grid}>
+          {recommendations.map((rec, index) => (
+            <div key={rec.id ?? index} style={styles.card}>
+              {/* TOP ROW */}
               <div
-                key={recommendation.id ?? `recommendation-${index}`}
-                style={cardStyle}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  marginBottom: "12px",
+                  gap: "12px",
+                }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    gap: "1rem",
-                    flexWrap: "wrap",
-                    marginBottom: "1rem",
-                  }}
-                >
-                  <div>
-                    <h2
-                      style={{
-                        margin: 0,
-                        fontSize: "1.15rem",
-                        color: "#111827",
-                      }}
-                    >
-                      {recommendation.recommended ||
-                        `Recommendation #${recommendation.id ?? index + 1}`}
-                    </h2>
+                <div>
+                  <h2 style={styles.sectionTitle}>
+                    {rec.recommended ||
+                      `Recommendation #${rec.id ?? index + 1}`}
+                  </h2>
 
-                    <p style={metaTextStyle}>
-                      User ID:{" "}
-                      {recommendation.userId ?? recommendation.user?.id ?? "N/A"}
-                    </p>
-                  </div>
-
-                  <div
-                    style={{
-                      padding: "0.45rem 0.75rem",
-                      borderRadius: "999px",
-                      background: "#ecfeff",
-                      color: "#155e75",
-                      fontWeight: 600,
-                      fontSize: "0.9rem",
-                    }}
-                  >
-                    Personalized
-                  </div>
+                  <p style={{ margin: "4px 0 0", color: "#6b7280" }}>
+                    User ID: {rec.userId ?? rec.user?.id ?? "N/A"}
+                  </p>
                 </div>
 
-                <div
-                  style={{
-                    display: "grid",
-                    gap: "0.9rem",
-                  }}
-                >
-                  <div>
-                    <p style={labelStyle}>Recommendation</p>
-                    <p style={valueStyle}>
-                      {recommendation.recommended || "Untitled Recommendation"}
-                    </p>
-                  </div>
+                <span style={styles.badge}>Personalized</span>
+              </div>
 
-                  <div>
-                    <p style={labelStyle}>Reason</p>
-                    <div style={contentBoxStyle}>
-                      <p
-                        style={{
-                          margin: 0,
-                          color: "#111827",
-                          lineHeight: 1.6,
-                        }}
-                      >
-                        {recommendation.reason || "No reason provided."}
-                      </p>
-                    </div>
-                  </div>
+              {/* RECOMMENDATION */}
+              <div style={{ marginBottom: "12px" }}>
+                <p style={styles.label}>Recommendation</p>
+                <p style={styles.value}>
+                  {rec.recommended || "Untitled Recommendation"}
+                </p>
+              </div>
 
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns:
-                        "repeat(auto-fit, minmax(180px, 1fr))",
-                      gap: "0.75rem",
-                    }}
-                  >
-                    <div style={smallInfoBoxStyle}>
-                      <p style={labelStyle}>Created</p>
-                      <p style={valueStyle}>
-                        {recommendation.createdAt
-                          ? new Date(recommendation.createdAt).toLocaleString()
-                          : "N/A"}
-                      </p>
-                    </div>
-
-                    <div style={smallInfoBoxStyle}>
-                      <p style={labelStyle}>User ID</p>
-                      <p style={valueStyle}>
-                        {recommendation.userId ??
-                          recommendation.user?.id ??
-                          "N/A"}
-                      </p>
-                    </div>
-                  </div>
+              {/* REASON */}
+              <div style={{ marginBottom: "12px" }}>
+                <p style={styles.label}>Reason</p>
+                <div style={styles.box}>
+                  <p style={{ margin: 0, lineHeight: 1.6 }}>
+                    {rec.reason || "No reason provided."}
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+
+              {/* META */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns:
+                    "repeat(auto-fit, minmax(180px, 1fr))",
+                  gap: "12px",
+                }}
+              >
+                <div style={styles.box}>
+                  <p style={styles.label}>Created</p>
+                  <p style={styles.value}>
+                    {rec.createdAt
+                      ? new Date(rec.createdAt).toLocaleString()
+                      : "N/A"}
+                  </p>
+                </div>
+
+                <div style={styles.box}>
+                  <p style={styles.label}>User ID</p>
+                  <p style={styles.value}>
+                    {rec.userId ?? rec.user?.id ?? "N/A"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-
-const topButtonStyle = {
-  border: "none",
-  background: "#111827",
-  color: "#ffffff",
-  padding: "0.85rem 1.1rem",
-  borderRadius: "12px",
-  cursor: "pointer",
-  fontWeight: 600,
-};
-
-const messageCardStyle = {
-  background: "#ffffff",
-  borderRadius: "16px",
-  padding: "1rem 1.25rem",
-  border: "1px solid #ececec",
-  boxShadow: "0 8px 24px rgba(0,0,0,0.06)",
-};
-
-const cardStyle = {
-  background: "#ffffff",
-  borderRadius: "18px",
-  padding: "1.25rem",
-  border: "1px solid #ececec",
-  boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
-};
-
-const contentBoxStyle = {
-  background: "#f9fafb",
-  border: "1px solid #e5e7eb",
-  borderRadius: "12px",
-  padding: "1rem",
-};
-
-const smallInfoBoxStyle = {
-  background: "#f9fafb",
-  border: "1px solid #e5e7eb",
-  borderRadius: "12px",
-  padding: "0.9rem",
-};
-
-const labelStyle = {
-  margin: 0,
-  fontSize: "0.85rem",
-  color: "#6b7280",
-  fontWeight: 600,
-};
-
-const valueStyle = {
-  margin: "0.35rem 0 0",
-  fontSize: "0.98rem",
-  color: "#111827",
-  fontWeight: 500,
-};
-
-const metaTextStyle = {
-  margin: "0.45rem 0 0",
-  color: "#6b7280",
-  fontSize: "0.95rem",
-};

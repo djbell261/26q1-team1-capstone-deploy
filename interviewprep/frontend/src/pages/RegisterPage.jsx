@@ -37,7 +37,6 @@ export default function RegisterPage() {
 
       navigate("/dashboard");
     } catch (err) {
-      console.error(err);
       setError(
         err.response?.data?.message ||
           err.response?.data ||
@@ -48,17 +47,87 @@ export default function RegisterPage() {
     }
   };
 
+  // ===== CONSISTENT AUTH THEME (matches LoginPage) =====
+  const styles = {
+    page: {
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "#f9fafb",
+      fontFamily: "Arial, sans-serif",
+      padding: "20px",
+    },
+
+    card: {
+      width: "100%",
+      maxWidth: "450px",
+      background: "#fff",
+      borderRadius: "12px",
+      padding: "24px",
+      boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
+    },
+
+    title: {
+      fontSize: "26px",
+      textAlign: "center",
+      marginBottom: "16px",
+      color: "#111827",
+    },
+
+    label: {
+      display: "block",
+      marginTop: "12px",
+      marginBottom: "6px",
+      fontWeight: "bold",
+      fontSize: "14px",
+      color: "#111827",
+    },
+
+    input: {
+      width: "100%",
+      padding: "10px 12px",
+      borderRadius: "8px",
+      border: "1px solid #d1d5db",
+      outline: "none",
+      fontSize: "14px",
+    },
+
+    button: {
+      width: "100%",
+      marginTop: "16px",
+      padding: "10px",
+      borderRadius: "8px",
+      border: "none",
+      cursor: "pointer",
+      backgroundColor: "#111827",
+      color: "white",
+      fontWeight: "bold",
+    },
+
+    error: {
+      color: "red",
+      marginTop: "10px",
+      fontSize: "14px",
+    },
+
+    footerText: {
+      marginTop: "16px",
+      textAlign: "center",
+      fontSize: "14px",
+      color: "#6b7280",
+    },
+  };
+
   return (
-    <div className="page-container">
-      <div
-        className="simple-card"
-        style={{ maxWidth: "500px", margin: "40px auto" }}
-      >
-        <h2>Create Account</h2>
+    <div style={styles.page}>
+      <div style={styles.card}>
+        <h2 style={styles.title}>Create Account</h2>
 
         <form onSubmit={handleSubmit}>
-          <label>Name</label>
+          <label style={styles.label}>Name</label>
           <input
+            style={styles.input}
             type="text"
             name="name"
             value={formData.name}
@@ -66,8 +135,9 @@ export default function RegisterPage() {
             required
           />
 
-          <label>Email</label>
+          <label style={styles.label}>Email</label>
           <input
+            style={styles.input}
             type="email"
             name="email"
             value={formData.email}
@@ -75,8 +145,9 @@ export default function RegisterPage() {
             required
           />
 
-          <label>Password</label>
+          <label style={styles.label}>Password</label>
           <input
+            style={styles.input}
             type="password"
             name="password"
             value={formData.password}
@@ -84,14 +155,14 @@ export default function RegisterPage() {
             required
           />
 
-          {error && <p>{error}</p>}
+          {error && <p style={styles.error}>{error}</p>}
 
-          <button type="submit" disabled={loading}>
+          <button style={styles.button} type="submit" disabled={loading}>
             {loading ? "Creating Account..." : "Register"}
           </button>
         </form>
 
-        <p style={{ marginTop: "16px" }}>
+        <p style={styles.footerText}>
           Already have an account? <Link to="/login">Login</Link>
         </p>
       </div>

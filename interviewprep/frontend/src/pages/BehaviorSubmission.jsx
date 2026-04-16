@@ -17,43 +17,114 @@ export default function BehaviorSubmission() {
       const response = await api.get("/api/behavioral-submissions/me");
       setSubmissions(response.data);
     } catch (err) {
-      console.error(err);
       setError("Failed to load behavioral submissions.");
     } finally {
       setLoading(false);
     }
   };
 
+  // ===== INLINE STYLES (consistent with your other pages) =====
+  const styles = {
+    page: {
+      maxWidth: "1000px",
+      margin: "40px auto",
+      padding: "20px",
+      fontFamily: "Arial, sans-serif",
+      color: "#1f2937",
+    },
+
+    title: {
+      textAlign: "center",
+      fontSize: "28px",
+      marginBottom: "20px",
+    },
+
+    topBar: {
+      marginBottom: "16px",
+    },
+
+    button: {
+      padding: "10px 14px",
+      border: "none",
+      borderRadius: "8px",
+      cursor: "pointer",
+      backgroundColor: "#111827",
+      color: "white",
+      transition: "0.2s ease",
+    },
+
+    buttonHover: {
+      backgroundColor: "#374151",
+    },
+
+    grid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+      gap: "16px",
+      marginTop: "20px",
+    },
+
+    card: {
+      background: "white",
+      borderRadius: "12px",
+      padding: "18px",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+      transition: "0.2s ease",
+    },
+
+    error: {
+      color: "red",
+      marginBottom: "10px",
+    },
+  };
+
   if (loading) {
     return (
-      <div className="page-container">
+      <div style={styles.page}>
         <p>Loading submissions...</p>
       </div>
     );
   }
 
   return (
-    <div className="page-container">
-      <h2>My Behavioral Submissions</h2>
+    <div style={styles.page}>
+      <h2 style={styles.title}>My Behavioral Submissions</h2>
 
-      <div style={{ marginBottom: "16px" }}>
-        <button onClick={() => navigate("/dashboard")}>Back to Dashboard</button>
+      {/* Top Button */}
+      <div style={styles.topBar}>
+        <button style={styles.button} onClick={() => navigate("/dashboard")}>
+          Back to Dashboard
+        </button>
       </div>
 
-      {error && <p>{error}</p>}
+      {/* Error */}
+      {error && <p style={styles.error}>{error}</p>}
 
+      {/* Empty State */}
       {submissions.length === 0 ? (
         <p>No submissions found.</p>
       ) : (
-        <div className="card-list">
+        <div style={styles.grid}>
           {submissions.map((sub) => (
-            <div key={sub.id} className="simple-card">
-              <p><strong>Submission ID:</strong> {sub.id}</p>
-              <p><strong>Status:</strong> {sub.status}</p>
-              <p><strong>Score:</strong> {sub.score ?? "Pending"}</p>
-              <p><strong>Submitted At:</strong> {sub.submittedAt}</p>
-              <p><strong>Question ID:</strong> {sub.questionId}</p>
-              <p><strong>Session ID:</strong> {sub.sessionId}</p>
+            <div key={sub.id} style={styles.card}>
+              <p>
+                <strong>Submission ID:</strong> {sub.id}
+              </p>
+              <p>
+                <strong>Status:</strong> {sub.status}
+              </p>
+              <p>
+                <strong>Score:</strong> {sub.score ?? "Pending"}
+              </p>
+              <p>
+                <strong>Submitted At:</strong> {sub.submittedAt}
+              </p>
+              <p>
+                <strong>Question ID:</strong> {sub.questionId}
+              </p>
+              <p>
+                <strong>Session ID:</strong> {sub.sessionId}
+              </p>
             </div>
           ))}
         </div>

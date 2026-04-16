@@ -29,8 +29,6 @@ export default function SessionsPage() {
           setSessions(response.data ?? []);
         }
       } catch (err) {
-        console.error("Failed to load sessions:", err);
-
         if (err.response?.status === 401 || err.response?.status === 403) {
           logout();
           navigate("/login", { replace: true });
@@ -41,9 +39,7 @@ export default function SessionsPage() {
           setError("Failed to load sessions.");
         }
       } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        if (isMounted) setLoading(false);
       }
     }
 
@@ -54,192 +50,200 @@ export default function SessionsPage() {
     };
   }, [logout, navigate]);
 
-  return (
-    <div style={pageStyle}>
-      <div style={containerStyle}>
-        <div style={headerStyle}>
-          <div>
-            <h1 style={titleStyle}>Sessions</h1>
-            <p style={subtitleStyle}>
-              Track your interview practice sessions.
-            </p>
-          </div>
+  // ===== CONSISTENT THEME =====
+  const styles = {
+    page: {
+      maxWidth: "1100px",
+      margin: "40px auto",
+      padding: "20px",
+      fontFamily: "Arial, sans-serif",
+      color: "#1f2937",
+    },
 
-          <button onClick={() => navigate("/dashboard")} style={topButtonStyle}>
-            Back to Dashboard
-          </button>
+    header: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      flexWrap: "wrap",
+      gap: "16px",
+      marginBottom: "24px",
+    },
+
+    title: {
+      margin: 0,
+      fontSize: "32px",
+    },
+
+    subtitle: {
+      margin: "6px 0 0",
+      color: "#6b7280",
+    },
+
+    button: {
+      border: "none",
+      background: "#111827",
+      color: "#fff",
+      padding: "10px 14px",
+      borderRadius: "8px",
+      cursor: "pointer",
+    },
+
+    grid: {
+      display: "grid",
+      gap: "16px",
+    },
+
+    card: {
+      background: "#fff",
+      borderRadius: "12px",
+      padding: "18px",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+    },
+
+    cardHeader: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: "12px",
+      flexWrap: "wrap",
+      gap: "10px",
+    },
+
+    cardTitle: {
+      margin: 0,
+      fontSize: "18px",
+    },
+
+    badge: {
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#ecfeff",
+      color: "#155e75",
+      fontWeight: 600,
+      fontSize: "12px",
+    },
+
+    infoGrid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+      gap: "12px",
+    },
+
+    box: {
+      background: "#f9fafb",
+      border: "1px solid #e5e7eb",
+      borderRadius: "10px",
+      padding: "12px",
+    },
+
+    label: {
+      margin: 0,
+      fontSize: "12px",
+      color: "#6b7280",
+      fontWeight: 600,
+    },
+
+    value: {
+      margin: "4px 0 0",
+      fontSize: "14px",
+      fontWeight: 500,
+      color: "#111827",
+    },
+
+    message: {
+      background: "#fff",
+      borderRadius: "12px",
+      padding: "14px",
+      border: "1px solid #ececec",
+    },
+
+    error: {
+      color: "crimson",
+    },
+  };
+
+  return (
+    <div style={styles.page}>
+      {/* HEADER */}
+      <div style={styles.header}>
+        <div>
+          <h1 style={styles.title}>Sessions</h1>
+          <p style={styles.subtitle}>
+            Track your interview practice sessions.
+          </p>
         </div>
 
-        {loading && (
-          <div style={messageCard}>
-            <p>Loading sessions...</p>
-          </div>
-        )}
+        <button style={styles.button} onClick={() => navigate("/dashboard")}>
+          Back to Dashboard
+        </button>
+      </div>
 
-        {!loading && error && (
-          <div style={messageCard}>
-            <p style={{ color: "crimson" }}>{error}</p>
-          </div>
-        )}
+      {/* LOADING */}
+      {loading && (
+        <div style={styles.message}>
+          <p style={{ margin: 0 }}>Loading sessions...</p>
+        </div>
+      )}
 
-        {!loading && !error && sessions.length === 0 && (
-          <div style={messageCard}>
-            <EmptyState text="No sessions yet." />
-          </div>
-        )}
+      {/* ERROR */}
+      {!loading && error && (
+        <div style={styles.message}>
+          <p style={styles.error}>{error}</p>
+        </div>
+      )}
 
-        {!loading && !error && sessions.length > 0 && (
-          <div style={gridStyle}>
-            {sessions.map((session, index) => (
-              <div key={session.id ?? index} style={cardStyle}>
-                <div style={cardHeader}>
-                  <h2 style={cardTitle}>
-                    Session #{session.id ?? index + 1}
-                  </h2>
+      {/* EMPTY */}
+      {!loading && !error && sessions.length === 0 && (
+        <div style={styles.message}>
+          <EmptyState text="No sessions yet." />
+        </div>
+      )}
 
-                  <span style={badgeStyle}>
-                    {session.status || "ACTIVE"}
-                  </span>
+      {/* LIST */}
+      {!loading && !error && sessions.length > 0 && (
+        <div style={styles.grid}>
+          {sessions.map((session, index) => (
+            <div key={session.id ?? index} style={styles.card}>
+              {/* HEADER ROW */}
+              <div style={styles.cardHeader}>
+                <h2 style={styles.cardTitle}>
+                  Session #{session.id ?? index + 1}
+                </h2>
+
+                <span style={styles.badge}>
+                  {session.status || "ACTIVE"}
+                </span>
+              </div>
+
+              {/* INFO GRID */}
+              <div style={styles.infoGrid}>
+                <div style={styles.box}>
+                  <p style={styles.label}>Type</p>
+                  <p style={styles.value}>{session.type || "N/A"}</p>
                 </div>
 
-                <div style={infoGrid}>
-                  <div style={infoBox}>
-                    <p style={label}>Type</p>
-                    <p style={value}>
-                      {session.type || "N/A"}
-                    </p>
-                  </div>
+                <div style={styles.box}>
+                  <p style={styles.label}>Started</p>
+                  <p style={styles.value}>
+                    {session.startedAt
+                      ? new Date(session.startedAt).toLocaleString()
+                      : "N/A"}
+                  </p>
+                </div>
 
-                  <div style={infoBox}>
-                    <p style={label}>Started</p>
-                    <p style={value}>
-                      {session.startedAt
-                        ? new Date(session.startedAt).toLocaleString()
-                        : "N/A"}
-                    </p>
-                  </div>
-
-                  <div style={infoBox}>
-                    <p style={label}>Expires</p>
-                    <p style={value}>
-                      {session.expiresAt
-                        ? new Date(session.expiresAt).toLocaleString()
-                        : "N/A"}
-                    </p>
-                  </div>
+                <div style={styles.box}>
+                  <p style={styles.label}>Expires</p>
+                  <p style={styles.value}>
+                    {session.expiresAt
+                      ? new Date(session.expiresAt).toLocaleString()
+                      : "N/A"}
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-
-const pageStyle = {
-  minHeight: "100vh",
-  background: "#f5f7fb",
-  padding: "2rem",
-};
-
-const containerStyle = {
-  maxWidth: "1100px",
-  margin: "0 auto",
-};
-
-const headerStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: "2rem",
-  flexWrap: "wrap",
-};
-
-const titleStyle = {
-  margin: 0,
-  fontSize: "2.5rem",
-  color: "#111827",
-};
-
-const subtitleStyle = {
-  margin: "0.5rem 0 0",
-  color: "#6b7280",
-};
-
-const topButtonStyle = {
-  border: "none",
-  background: "#111827",
-  color: "#fff",
-  padding: "0.85rem 1.1rem",
-  borderRadius: "12px",
-  cursor: "pointer",
-  fontWeight: 600,
-};
-
-const messageCard = {
-  background: "#fff",
-  borderRadius: "16px",
-  padding: "1rem",
-  border: "1px solid #ececec",
-};
-
-const gridStyle = {
-  display: "grid",
-  gap: "1rem",
-};
-
-const cardStyle = {
-  background: "#fff",
-  borderRadius: "18px",
-  padding: "1.25rem",
-  border: "1px solid #ececec",
-  boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
-};
-
-const cardHeader = {
-  display: "flex",
-  justifyContent: "space-between",
-  marginBottom: "1rem",
-  alignItems: "center",
-  gap: "1rem",
-  flexWrap: "wrap",
-};
-
-const cardTitle = {
-  margin: 0,
-  fontSize: "1.2rem",
-};
-
-const badgeStyle = {
-  background: "#e0f2fe",
-  color: "#0369a1",
-  padding: "0.3rem 0.6rem",
-  borderRadius: "999px",
-  fontSize: "0.8rem",
-  fontWeight: 600,
-};
-
-const infoGrid = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-  gap: "0.75rem",
-};
-
-const infoBox = {
-  background: "#f9fafb",
-  borderRadius: "12px",
-  padding: "0.75rem",
-  border: "1px solid #e5e7eb",
-};
-
-const label = {
-  margin: 0,
-  fontSize: "0.8rem",
-  color: "#6b7280",
-};
-
-const value = {
-  margin: "0.25rem 0 0",
-  fontWeight: 600,
-};
