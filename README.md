@@ -59,7 +59,7 @@ This platform solves that by:
 ### AI Feedback System
 Each submission generates structured feedback:
 
-```json
+ 
 {
   "aiScore": 7.0,
   "summary": "...",
