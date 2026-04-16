@@ -39,51 +39,85 @@ export default function BehavioralQuestionLibraryPage() {
       const session = response.data;
 
       navigate(`/behavioral-session/${session.id}`, {
-        state: {
-          session,
-          question,
-        },
+        state: { session, question },
       });
     } catch (err) {
-      console.error(err);
-      setError(
-        err.response?.data?.message ||
-          err.response?.data ||
-          err.message ||
-          "Failed to start behavioral session."
-      );
+      setError("Failed to start behavioral session.");
     }
+  };
+
+  const styles = {
+    page: {
+      maxWidth: "1000px",
+      margin: "40px auto",
+      padding: "20px",
+      fontFamily: "Arial, sans-serif",
+      color: "#1f2937",
+    },
+
+    title: {
+      textAlign: "center",
+      marginBottom: "20px",
+      fontSize: "28px",
+    },
+
+    button: {
+      padding: "10px 14px",
+      border: "none",
+      borderRadius: "8px",
+      cursor: "pointer",
+      backgroundColor: "#111827",
+      color: "white",
+    },
+
+    grid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+      gap: "16px",
+      marginTop: "20px",
+    },
+
+    card: {
+      background: "white",
+      borderRadius: "12px",
+      padding: "16px",
+      boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
+    },
   };
 
   if (loading) {
     return (
-      <div className="page-container">
+      <div style={styles.page}>
         <p>Loading behavioral questions...</p>
       </div>
     );
   }
 
   return (
-    <div className="page-container">
-      <h2>Behavioral Question Library</h2>
+    <div style={styles.page}>
+      <h2 style={styles.title}>Behavioral Question Library</h2>
 
       <div style={{ marginBottom: "16px" }}>
-        <button onClick={() => navigate("/dashboard")}>Back to Dashboard</button>
+        <button style={styles.button} onClick={() => navigate("/dashboard")}>
+          Back to Dashboard
+        </button>
       </div>
 
-      {error && <p>{error}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       {questions.length === 0 ? (
         <p>No behavioral questions found.</p>
       ) : (
-        <div className="card-list">
+        <div style={styles.grid}>
           {questions.map((question) => (
-            <div key={question.id} className="simple-card">
+            <div key={question.id} style={styles.card}>
               <h3>{question.category}</h3>
               <p>{question.questionText}</p>
-              <p><strong>Difficulty:</strong> {question.difficulty}</p>
+              <p>
+                <strong>Difficulty:</strong> {question.difficulty}
+              </p>
 
-              <button onClick={() => startSession(question)}>
+              <button style={{ ...styles.button, marginTop: "10px" }} onClick={() => startSession(question)}>
                 Start Question
               </button>
             </div>
