@@ -155,11 +155,13 @@ export default function RecommendationPage() {
                         color: "#111827",
                       }}
                     >
-                      Recommendation #{recommendation.id ?? index + 1}
+                      {recommendation.recommended ||
+                        `Recommendation #${recommendation.id ?? index + 1}`}
                     </h2>
 
                     <p style={metaTextStyle}>
-                      User ID: {recommendation.userId ?? recommendation.user?.id ?? "N/A"}
+                      User ID:{" "}
+                      {recommendation.userId ?? recommendation.user?.id ?? "N/A"}
                     </p>
                   </div>
 
@@ -184,14 +186,14 @@ export default function RecommendationPage() {
                   }}
                 >
                   <div>
-                    <p style={labelStyle}>Title</p>
+                    <p style={labelStyle}>Recommendation</p>
                     <p style={valueStyle}>
-                      {recommendation.title || "Untitled Recommendation"}
+                      {recommendation.recommended || "Untitled Recommendation"}
                     </p>
                   </div>
 
                   <div>
-                    <p style={labelStyle}>Recommendation</p>
+                    <p style={labelStyle}>Reason</p>
                     <div style={contentBoxStyle}>
                       <p
                         style={{
@@ -200,10 +202,7 @@ export default function RecommendationPage() {
                           lineHeight: 1.6,
                         }}
                       >
-                        {recommendation.message ||
-                          recommendation.content ||
-                          recommendation.text ||
-                          "Recommendation content is available."}
+                        {recommendation.reason || "No reason provided."}
                       </p>
                     </div>
                   </div>
@@ -217,16 +216,20 @@ export default function RecommendationPage() {
                     }}
                   >
                     <div style={smallInfoBoxStyle}>
-                      <p style={labelStyle}>Category</p>
+                      <p style={labelStyle}>Created</p>
                       <p style={valueStyle}>
-                        {recommendation.category || "General"}
+                        {recommendation.createdAt
+                          ? new Date(recommendation.createdAt).toLocaleString()
+                          : "N/A"}
                       </p>
                     </div>
 
                     <div style={smallInfoBoxStyle}>
-                      <p style={labelStyle}>Priority</p>
+                      <p style={labelStyle}>User ID</p>
                       <p style={valueStyle}>
-                        {recommendation.priority || "Standard"}
+                        {recommendation.userId ??
+                          recommendation.user?.id ??
+                          "N/A"}
                       </p>
                     </div>
                   </div>

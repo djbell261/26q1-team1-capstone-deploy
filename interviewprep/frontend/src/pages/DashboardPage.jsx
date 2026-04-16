@@ -75,11 +75,28 @@ function SectionCard({ title, children }) {
 }
 
 function EmptyState({ text }) {
-  return (
-    <p style={{ margin: 0, color: "#6b7280" }}>
-      {text}
-    </p>
-  );
+  return <p style={{ margin: 0, color: "#6b7280" }}>{text}</p>;
+}
+
+function formatScore(value) {
+  if (value === null || value === undefined) {
+    return "0.0";
+  }
+
+  return Number(value).toFixed(1);
+}
+
+function formatDate(value) {
+  if (!value) {
+    return "N/A";
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return "N/A";
+  }
+
+  return parsed.toLocaleString();
 }
 
 export default function DashboardPage() {
@@ -92,6 +109,17 @@ export default function DashboardPage() {
     codingSubmissions: [],
     behavioralSubmissions: [],
     recommendations: [],
+    performance: {
+      averageCodingScore: 0,
+      averageBehavioralScore: 0,
+      overallAverageScore: 0,
+      totalCodingSubmissions: 0,
+      totalBehavioralSubmissions: 0,
+      codingAverageByDifficulty: {},
+      recentCodingSubmissions: [],
+      recentBehavioralSubmissions: [],
+      weakAreas: [],
+    },
   });
 
   const [loading, setLoading] = useState(true);
@@ -136,19 +164,37 @@ export default function DashboardPage() {
     };
   }, [logout, navigate]);
 
+  const performance = data.performance ?? {};
+
   const recentCoding = useMemo(
-    () => [...data.codingSubmissions].slice(0, 5),
-    [data.codingSubmissions]
+    () =>
+      performance.recentCodingSubmissions?.length
+        ? performance.recentCodingSubmissions.slice(0, 5)
+        : [...data.codingSubmissions].slice(0, 5),
+    [performance.recentCodingSubmissions, data.codingSubmissions]
   );
 
   const recentBehavioral = useMemo(
-    () => [...data.behavioralSubmissions].slice(0, 5),
-    [data.behavioralSubmissions]
+    () =>
+      performance.recentBehavioralSubmissions?.length
+        ? performance.recentBehavioralSubmissions.slice(0, 5)
+        : [...data.behavioralSubmissions].slice(0, 5),
+    [performance.recentBehavioralSubmissions, data.behavioralSubmissions]
   );
 
   const recentRecommendations = useMemo(
     () => [...data.recommendations].slice(0, 5),
     [data.recommendations]
+  );
+
+  const difficultyBreakdown = useMemo(
+    () => Object.entries(performance.codingAverageByDifficulty ?? {}),
+    [performance.codingAverageByDifficulty]
+  );
+
+  const weakAreas = useMemo(
+    () => performance.weakAreas ?? [],
+    [performance.weakAreas]
   );
 
   const handleLogout = () => {
@@ -244,24 +290,24 @@ export default function DashboardPage() {
           }}
         >
           <StatCard
-            title="Sessions"
-            value={data.sessions.length}
-            subtitle="Interview sessions created"
+            title="Avg Coding Score"
+            value={formatScore(performance.averageCodingScore)}
+            subtitle="AI evaluated coding"
           />
           <StatCard
-            title="Coding Submissions"
-            value={data.codingSubmissions.length}
-            subtitle="Practice coding attempts"
+            title="Avg Behavioral Score"
+            value={formatScore(performance.averageBehavioralScore)}
+            subtitle="AI evaluated behavioral"
           />
           <StatCard
-            title="Behavioral Submissions"
-            value={data.behavioralSubmissions.length}
-            subtitle="Behavioral responses submitted"
+            title="Overall Score"
+            value={formatScore(performance.overallAverageScore)}
+            subtitle="Combined interview performance"
           />
           <StatCard
             title="Recommendations"
             value={data.recommendations.length}
-            subtitle="Personalized recommendations"
+            subtitle="Personalized coaching tips"
           />
         </div>
 
@@ -292,6 +338,60 @@ export default function DashboardPage() {
               </div>
             </SectionCard>
 
+            <SectionCard title="Weak Areas">
+              {weakAreas.length === 0 ? (
+                <EmptyState text="No weak areas detected." />
+              ) : (
+                <div style={{ display: "grid", gap: "0.75rem" }}>
+                  {weakAreas.map((area, index) => (
+                    <div
+                      key={`${area}-${index}`}
+                      style={{
+                        padding: "0.9rem 1rem",
+                        borderRadius: "12px",
+                        background: "#fef2f2",
+                        border: "1px solid #fecaca",
+                        color: "#991b1b",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {area}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </SectionCard>
+
+            <SectionCard title="Coding Score by Difficulty">
+              {difficultyBreakdown.length === 0 ? (
+                <EmptyState text="No coding difficulty analytics yet." />
+              ) : (
+                <div style={{ display: "grid", gap: "0.75rem" }}>
+                  {difficultyBreakdown.map(([difficulty, score]) => (
+                    <div
+                      key={difficulty}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "0.9rem 1rem",
+                        borderRadius: "12px",
+                        background: "#f9fafb",
+                        border: "1px solid #ececec",
+                      }}
+                    >
+                      <span style={{ fontWeight: 600, color: "#111827" }}>
+                        {difficulty}
+                      </span>
+                      <span style={{ color: "#4b5563" }}>
+                        {formatScore(score)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </SectionCard>
+
             <SectionCard title="Recent Coding Submissions">
               {recentCoding.length === 0 ? (
                 <EmptyState text="No coding submissions yet." />
@@ -299,7 +399,7 @@ export default function DashboardPage() {
                 <div style={{ display: "grid", gap: "0.75rem" }}>
                   {recentCoding.map((submission, index) => (
                     <div
-                      key={submission.id ?? `coding-${index}`}
+                      key={submission.submissionId ?? submission.id ?? `coding-${index}`}
                       style={{
                         padding: "0.9rem 1rem",
                         borderRadius: "12px",
@@ -308,10 +408,16 @@ export default function DashboardPage() {
                       }}
                     >
                       <p style={{ margin: 0, fontWeight: 600 }}>
-                        Submission #{submission.id ?? index + 1}
+                        {submission.title || `Submission #${submission.id ?? index + 1}`}
                       </p>
                       <p style={{ margin: "0.35rem 0 0", color: "#6b7280" }}>
-                        Challenge ID: {submission.challengeId ?? submission.challenge?.id ?? "N/A"}
+                        Difficulty: {submission.difficulty || "N/A"}
+                      </p>
+                      <p style={{ margin: "0.25rem 0 0", color: "#6b7280" }}>
+                        Score: {submission.score ?? "N/A"}
+                      </p>
+                      <p style={{ margin: "0.25rem 0 0", color: "#9ca3af", fontSize: "0.9rem" }}>
+                        {formatDate(submission.submittedAt)}
                       </p>
                     </div>
                   ))}
@@ -326,7 +432,7 @@ export default function DashboardPage() {
                 <div style={{ display: "grid", gap: "0.75rem" }}>
                   {recentBehavioral.map((submission, index) => (
                     <div
-                      key={submission.id ?? `behavioral-${index}`}
+                      key={submission.submissionId ?? submission.id ?? `behavioral-${index}`}
                       style={{
                         padding: "0.9rem 1rem",
                         borderRadius: "12px",
@@ -335,10 +441,16 @@ export default function DashboardPage() {
                       }}
                     >
                       <p style={{ margin: 0, fontWeight: 600 }}>
-                        Submission #{submission.id ?? index + 1}
+                        {submission.title || `Submission #${submission.id ?? index + 1}`}
                       </p>
                       <p style={{ margin: "0.35rem 0 0", color: "#6b7280" }}>
-                        Question ID: {submission.questionId ?? submission.question?.id ?? "N/A"}
+                        Difficulty: {submission.difficulty || "N/A"}
+                      </p>
+                      <p style={{ margin: "0.25rem 0 0", color: "#6b7280" }}>
+                        Score: {submission.score ?? "N/A"}
+                      </p>
+                      <p style={{ margin: "0.25rem 0 0", color: "#9ca3af", fontSize: "0.9rem" }}>
+                        {formatDate(submission.submittedAt)}
                       </p>
                     </div>
                   ))}
@@ -369,14 +481,11 @@ export default function DashboardPage() {
                         border: "1px solid #ececec",
                       }}
                     >
-                      <p style={{ margin: 0, fontWeight: 600 }}>
-                        Recommendation #{recommendation.id ?? index + 1}
+                      <p style={{ margin: 0, fontWeight: 600, color: "#111827" }}>
+                        {recommendation.recommended || `Recommendation #${index + 1}`}
                       </p>
-                      <p style={{ margin: "0.35rem 0 0", color: "#6b7280" }}>
-                        {recommendation.title ||
-                          recommendation.message ||
-                          recommendation.content ||
-                          "Recommendation available"}
+                      <p style={{ margin: "0.4rem 0 0", color: "#6b7280", lineHeight: 1.5 }}>
+                        {recommendation.reason || "Recommendation available."}
                       </p>
                     </div>
                   ))}
