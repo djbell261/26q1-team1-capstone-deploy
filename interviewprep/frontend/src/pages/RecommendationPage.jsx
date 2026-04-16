@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import client from "../api/client";
+import client from "../services/client";
 import { useAuthContext } from "../context/AuthContext";
 
 function EmptyState({ text }) {

@@ -6,7 +6,11 @@ import SessionsPage from "../pages/SessionsPage";
 import CodingSubmissionPage from "../pages/CodingSubmissionPage";
 import BehaviorSubmission from "../pages/BehaviorSubmission";
 import RecommendationPage from "../pages/RecommendationPage";
-import ProtectedRoute from "../components/ProtectedRoute.jsx";
+import CodingChallengeLibraryPage from "../pages/CodingChallengeLibraryPage";
+import CodingChallengeSessionPage from "../pages/CodingChallengeSessionPage";
+import BehavioralQuestionLibraryPage from "../pages/BehavioralQuestionLibraryPage";
+import BehavioralQuestionSessionPage from "../pages/BehavioralQuestionSessionPage";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 export default function AppRoutes() {
   return (
@@ -57,6 +61,42 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute>
               <RecommendationPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/coding-challenges"
+          element={
+            <ProtectedRoute>
+              <CodingChallengeLibraryPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/coding-session/:sessionId"
+          element={
+            <ProtectedRoute>
+              <CodingChallengeSessionPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/behavioral-questions"
+          element={
+            <ProtectedRoute>
+              <BehavioralQuestionLibraryPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/behavioral-session/:sessionId"
+          element={
+            <ProtectedRoute>
+              <BehavioralQuestionSessionPage />
             </ProtectedRoute>
           }
         />
