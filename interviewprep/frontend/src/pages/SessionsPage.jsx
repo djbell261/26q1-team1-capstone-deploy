@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import client from "../services/client";
+import api from "../services/api";
 import { useAuthContext } from "../context/AuthContext";
 
 function EmptyState({ text }) {
@@ -23,7 +23,7 @@ export default function SessionsPage() {
         setLoading(true);
         setError("");
 
-        const response = await client.get("/sessions/me");
+        const response = await api.get("/api/sessions/me");
 
         if (isMounted) {
           setSessions(response.data ?? []);
@@ -57,7 +57,6 @@ export default function SessionsPage() {
   return (
     <div style={pageStyle}>
       <div style={containerStyle}>
-        {/* Header */}
         <div style={headerStyle}>
           <div>
             <h1 style={titleStyle}>Sessions</h1>
@@ -71,7 +70,6 @@ export default function SessionsPage() {
           </button>
         </div>
 
-        {/* States */}
         {loading && (
           <div style={messageCard}>
             <p>Loading sessions...</p>
@@ -90,7 +88,6 @@ export default function SessionsPage() {
           </div>
         )}
 
-        {/* Sessions List */}
         {!loading && !error && sessions.length > 0 && (
           <div style={gridStyle}>
             {sessions.map((session, index) => (
@@ -109,15 +106,15 @@ export default function SessionsPage() {
                   <div style={infoBox}>
                     <p style={label}>Type</p>
                     <p style={value}>
-                      {session.type || session.sessionType || "N/A"}
+                      {session.type || "N/A"}
                     </p>
                   </div>
 
                   <div style={infoBox}>
                     <p style={label}>Started</p>
                     <p style={value}>
-                      {session.createdAt
-                        ? new Date(session.createdAt).toLocaleString()
+                      {session.startedAt
+                        ? new Date(session.startedAt).toLocaleString()
                         : "N/A"}
                     </p>
                   </div>
@@ -125,8 +122,8 @@ export default function SessionsPage() {
                   <div style={infoBox}>
                     <p style={label}>Expires</p>
                     <p style={value}>
-                      {session.expirationTime
-                        ? new Date(session.expirationTime).toLocaleString()
+                      {session.expiresAt
+                        ? new Date(session.expiresAt).toLocaleString()
                         : "N/A"}
                     </p>
                   </div>
@@ -204,6 +201,9 @@ const cardHeader = {
   display: "flex",
   justifyContent: "space-between",
   marginBottom: "1rem",
+  alignItems: "center",
+  gap: "1rem",
+  flexWrap: "wrap",
 };
 
 const cardTitle = {

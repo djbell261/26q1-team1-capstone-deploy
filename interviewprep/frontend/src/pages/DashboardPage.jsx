@@ -16,15 +16,22 @@ export default function DashboardPage() {
 
   const fetchData = async () => {
     try {
-      const [perfRes, userRes, recRes] = await Promise.all([
+      const [perfRes, userRes] = await Promise.all([
         api.get("/api/performance/me"),
         api.get("/api/users/me"),
-        api.get("/api/recommendations/me"),
       ]);
+
+      try {
+        await api.post("/api/recommendations/generate/me");
+      } catch (recGenerateErr) {
+        console.error("Recommendation generation failed", recGenerateErr);
+      }
+
+      const recRes = await api.get("/api/recommendations/me");
 
       setPerformance(perfRes.data);
       setUser(userRes.data);
-      setRecommendations(recRes.data);
+      setRecommendations(recRes.data ?? []);
     } catch (err) {
       console.error("Dashboard load failed", err);
       setError("Failed to load dashboard.");
@@ -46,7 +53,15 @@ export default function DashboardPage() {
 
   return (
     <div className="page-container">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "16px",
+          flexWrap: "wrap",
+        }}
+      >
         <div>
           <h1>Dashboard</h1>
           <p>Welcome back, {user.name}.</p>
@@ -64,17 +79,17 @@ export default function DashboardPage() {
       >
         <div className="simple-card">
           <h3>Avg Coding Score</h3>
-          <p>{performance.averageCodingScore}</p>
+          <p>{performance.averageCodingScore ?? 0}</p>
         </div>
 
         <div className="simple-card">
           <h3>Avg Behavioral Score</h3>
-          <p>{performance.averageBehavioralScore}</p>
+          <p>{performance.averageBehavioralScore ?? 0}</p>
         </div>
 
         <div className="simple-card">
           <h3>Overall Score</h3>
-          <p>{performance.overallScore}</p>
+          <p>{performance.overallScore ?? 0}</p>
         </div>
 
         <div className="simple-card">

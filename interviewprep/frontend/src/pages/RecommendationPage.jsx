@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import client from "../services/client";
+import api from "../services/api";
 import { useAuthContext } from "../context/AuthContext";
 
 function EmptyState({ text }) {
@@ -23,7 +23,8 @@ export default function RecommendationPage() {
         setLoading(true);
         setError("");
 
-        const response = await client.get("/recommendations/me");
+        await api.post("/api/recommendations/generate/me");
+        const response = await api.get("/api/recommendations/me");
 
         if (isMounted) {
           setRecommendations(response.data ?? []);

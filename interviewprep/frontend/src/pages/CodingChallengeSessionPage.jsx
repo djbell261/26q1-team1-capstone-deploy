@@ -28,7 +28,7 @@ export default function CodingChallengeSessionPage() {
       const diff = end - now;
 
       if (diff <= 0) {
-        setTimeLeft("Time expired");
+        setTimeLeft("Expired");
         clearInterval(interval);
         return;
       }
@@ -63,6 +63,11 @@ export default function CodingChallengeSessionPage() {
       return;
     }
 
+    if (sessionExpired) {
+      setError("This session has expired. You can no longer submit.");
+      return;
+    }
+
     setSubmitting(true);
     setError("");
 
@@ -79,6 +84,7 @@ export default function CodingChallengeSessionPage() {
 
       setSubmission(response.data);
       await fetchFeedback(response.data.id);
+      await api.post("/api/recommendations/generate/me");
     } catch (err) {
       console.error(err);
       setError(
@@ -111,8 +117,15 @@ export default function CodingChallengeSessionPage() {
 
       <div className="simple-card">
         <p><strong>Session ID:</strong> {session.id}</p>
-        <p><strong>Time Left:</strong> {timeLeft || "Loading timer..."}</p>
+        <p><strong>Time Left:</strong> {sessionExpired ? "Expired" : timeLeft || "Loading timer..."}</p>
       </div>
+
+      {sessionExpired && (
+        <div className="simple-card" style={{ border: "1px solid red" }}>
+          <h3>Session Expired</h3>
+          <p>Your time is up. You can no longer submit this challenge.</p>
+        </div>
+      )}
 
       <div className="simple-card">
         <h3>{challenge.title}</h3>
