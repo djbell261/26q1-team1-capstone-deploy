@@ -67,6 +67,7 @@ Each submission generates structured feedback:
   "weaknesses": "...",
   "recommendations": "..."
 }
+---
 
 ## Performance Tracking
 
