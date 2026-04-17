@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { ui } from "../styles/ui";
 
 export default function BehaviorSubmission() {
   const [submissions, setSubmissions] = useState([]);
@@ -23,112 +24,84 @@ export default function BehaviorSubmission() {
     }
   };
 
-  const styles = {
-    page: {
-      maxWidth: "1000px",
-      margin: "40px auto",
-      padding: "20px",
-      fontFamily: "Arial, sans-serif",
-      color: "#1f2937",
-    },
-
-    title: {
-      textAlign: "center",
-      fontSize: "28px",
-      marginBottom: "20px",
-    },
-
-    topBar: {
-      marginBottom: "16px",
-    },
-
-    button: {
-      padding: "10px 14px",
-      border: "none",
-      borderRadius: "8px",
-      cursor: "pointer",
-      backgroundColor: "#111827",
-      color: "white",
-      transition: "0.2s ease",
-    },
-
-    buttonHover: {
-      backgroundColor: "#374151",
-    },
-
-    grid: {
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-      gap: "16px",
-      marginTop: "20px",
-    },
-
-    card: {
-      background: "white",
-      borderRadius: "12px",
-      padding: "18px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-      transition: "0.2s ease",
-    },
-
-    error: {
-      color: "red",
-      marginBottom: "10px",
-    },
-  };
-  
-
   if (loading) {
     return (
-      <div style={styles.page}>
-        <p>Loading submissions...</p>
+      <div style={ui.page}>
+        <div style={ui.container}>
+          <div style={ui.card}>Loading submissions...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={styles.page}>
-      <h2 style={styles.title}>My Behavioral Submissions</h2>
-
-      {/* Top Button */}
-      <div style={styles.topBar}>
-        <button style={styles.button} onClick={() => navigate("/dashboard")}>
-          Back to Dashboard
-        </button>
-      </div>
-
-      {/* Error */}
-      {error && <p style={styles.error}>{error}</p>}
-
-      {/* Empty State */}
-      {submissions.length === 0 ? (
-        <p>No submissions found.</p>
-      ) : (
-        <div style={styles.grid}>
-          {submissions.map((sub) => (
-            <div key={sub.id} style={styles.card}>
-              <p>
-                <strong>Submission ID:</strong> {sub.id}
-              </p>
-              <p>
-                <strong>Status:</strong> {sub.status}
-              </p>
-              <p>
-                <strong>Score:</strong> {sub.score ?? "Pending"}
-              </p>
-              <p>
-                <strong>Submitted At:</strong> {sub.submittedAt}
-              </p>
-              <p>
-                <strong>Question ID:</strong> {sub.questionId}
-              </p>
-              <p>
-                <strong>Session ID:</strong> {sub.sessionId}
+    <div style={ui.page}>
+      <div style={ui.container}>
+        <section style={ui.hero}>
+          <div style={ui.topRow}>
+            <div>
+              <h1 style={ui.heroTitle}>My Behavioral Submissions</h1>
+              <p style={ui.heroSubtitle}>
+                Review your behavioral practice responses, scores, and session details.
               </p>
             </div>
-          ))}
-        </div>
-      )}
+
+            <button style={ui.secondaryButton} onClick={() => navigate("/dashboard")}>
+              Back to Dashboard
+            </button>
+          </div>
+        </section>
+
+        {error && <div style={ui.error}>{error}</div>}
+
+        {submissions.length === 0 ? (
+          <div style={ui.card}>No submissions found.</div>
+        ) : (
+          <section style={ui.gridCards}>
+            {submissions.map((sub) => (
+              <article key={sub.id} style={ui.card}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+                  <h3 style={{ margin: 0, fontSize: "20px" }}>Submission #{sub.id}</h3>
+                  <span style={ui.badge}>{sub.status}</span>
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                    gap: "12px",
+                    marginTop: "16px",
+                  }}
+                >
+                  <div style={ui.infoBox}>
+                    <p style={ui.statLabel}>Score</p>
+                    <p style={{ margin: "6px 0 0", fontWeight: 700 }}>
+                      {sub.score ?? "Pending"}
+                    </p>
+                  </div>
+
+                  <div style={ui.infoBox}>
+                    <p style={ui.statLabel}>Question ID</p>
+                    <p style={{ margin: "6px 0 0", fontWeight: 700 }}>{sub.questionId}</p>
+                  </div>
+
+                  <div style={ui.infoBox}>
+                    <p style={ui.statLabel}>Session ID</p>
+                    <p style={{ margin: "6px 0 0", fontWeight: 700 }}>{sub.sessionId}</p>
+                  </div>
+                </div>
+
+                <div style={{ ...ui.infoBox, marginTop: "12px" }}>
+                  <p style={ui.statLabel}>Submitted At</p>
+                  <p style={{ margin: "6px 0 0", fontWeight: 700 }}>
+                    {sub.submittedAt}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </section>
+        )}
+      </div>
     </div>
   );
 }

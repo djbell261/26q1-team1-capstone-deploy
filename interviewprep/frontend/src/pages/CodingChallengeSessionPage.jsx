@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import api from "../services/api";
+import { ui } from "../styles/ui";
 
 export default function CodingChallengeSessionPage() {
   const { sessionId } = useParams();
@@ -48,9 +49,7 @@ export default function CodingChallengeSessionPage() {
 
   const fetchFeedback = async (submissionId) => {
     try {
-      const response = await api.get(
-        `/api/feedback/coding-submission/${submissionId}`
-      );
+      const response = await api.get(`/api/feedback/coding-submission/${submissionId}`);
       setFeedback(response.data);
     } catch (err) {
       console.error(err);
@@ -99,200 +98,176 @@ export default function CodingChallengeSessionPage() {
     }
   };
 
-  const styles = {
-    page: {
-      maxWidth: "1000px",
-      margin: "40px auto",
-      padding: "20px",
-      fontFamily: "Arial, sans-serif",
-      color: "#1f2937",
-    },
-
-    title: {
-      textAlign: "center",
-      fontSize: "28px",
-      marginBottom: "20px",
-    },
-
-    topBar: {
-      marginBottom: "16px",
-    },
-
-    button: {
-      padding: "10px 14px",
-      border: "none",
-      borderRadius: "8px",
-      cursor: "pointer",
-      backgroundColor: "#111827",
-      color: "white",
-    },
-
-    card: {
-      background: "white",
-      borderRadius: "12px",
-      padding: "18px",
-      marginBottom: "16px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-    },
-
-    expiredCard: {
-      border: "1px solid #ef4444",
-    },
-
-    textarea: {
-      width: "100%",
-      marginTop: "10px",
-      padding: "12px",
-      borderRadius: "8px",
-      border: "1px solid #d1d5db",
-      fontFamily: "monospace",
-      fontSize: "14px",
-      minHeight: "300px",
-      resize: "vertical",
-    },
-
-    error: {
-      color: "red",
-      marginTop: "10px",
-    },
-  };
-
   if (!session || !challenge) {
     return (
-      <div style={styles.page}>
-        <p>
-          Session or challenge data is missing. Go back and start again.
-        </p>
-        <button
-          style={styles.button}
-          onClick={() => navigate("/coding-challenges")}
-        >
-          Back to Challenges
-        </button>
+      <div style={ui.page}>
+        <div style={ui.container}>
+          <div style={ui.card}>
+            <p>Session or challenge data is missing. Go back and start again.</p>
+            <button style={ui.button} onClick={() => navigate("/coding-challenges")}>
+              Back to Challenges
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={styles.page}>
-      <h2 style={styles.title}>Coding Session</h2>
+    <div style={ui.page}>
+      <div style={ui.container}>
+        <section style={ui.hero}>
+          <div style={ui.topRow}>
+            <div>
+              <h1 style={ui.heroTitle}>Coding Session</h1>
+              <p style={ui.heroSubtitle}>
+                Solve the problem in a timed environment and submit your solution for feedback.
+              </p>
+            </div>
 
-      {/* Back Button */}
-      <div style={styles.topBar}>
-        <button
-          style={styles.button}
-          onClick={() => navigate("/coding-challenges")}
-        >
-          Back to Challenges
-        </button>
+            <button style={ui.secondaryButton} onClick={() => navigate("/coding-challenges")}>
+              Back to Challenges
+            </button>
+          </div>
+        </section>
+
+        <section style={ui.grid2}>
+          <div style={{ display: "grid", gap: "20px" }}>
+            <div style={ui.card}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+                <h2 style={ui.sectionTitle}>{challenge.title}</h2>
+                <span style={ui.badge}>{challenge.difficulty}</span>
+              </div>
+
+              <p style={{ ...ui.muted, margin: "14px 0 18px", lineHeight: 1.7 }}>
+                {challenge.description || "No description"}
+              </p>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                  gap: "12px",
+                }}
+              >
+                <div style={ui.infoBox}>
+                  <p style={ui.statLabel}>Category</p>
+                  <p style={{ margin: "6px 0 0", fontWeight: 700 }}>
+                    {challenge.category}
+                  </p>
+                </div>
+
+                <div style={ui.infoBox}>
+                  <p style={ui.statLabel}>Time Limit</p>
+                  <p style={{ margin: "6px 0 0", fontWeight: 700 }}>
+                    {challenge.timeLimitMinutes || 30} minutes
+                  </p>
+                </div>
+
+                <div style={ui.infoBox}>
+                  <p style={ui.statLabel}>Session ID</p>
+                  <p style={{ margin: "6px 0 0", fontWeight: 700 }}>{session.id}</p>
+                </div>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} style={ui.card}>
+              <label style={ui.label}>Your Code</label>
+
+              <textarea
+                style={ui.codeTextarea}
+                rows="20"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="Write your coding solution here..."
+                disabled={sessionExpired}
+              />
+
+              {error && <div style={ui.error}>{error}</div>}
+
+              <div style={{ marginTop: "16px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                <button
+                  style={ui.button}
+                  type="submit"
+                  disabled={submitting || sessionExpired || !code.trim()}
+                >
+                  {sessionExpired
+                    ? "Session Expired"
+                    : submitting
+                    ? "Submitting..."
+                    : "Submit Solution"}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <aside style={{ display: "grid", gap: "20px" }}>
+            <div style={ui.card}>
+              <h2 style={ui.sectionTitle}>Session Status</h2>
+              <div style={{ display: "grid", gap: "12px", marginTop: "16px" }}>
+                <div style={ui.infoBox}>
+                  <p style={ui.statLabel}>Time Left</p>
+                  <p style={{ margin: "6px 0 0", fontWeight: 700, fontSize: "20px" }}>
+                    {sessionExpired ? "Expired" : timeLeft || "Loading timer..."}
+                  </p>
+                </div>
+
+                {sessionExpired && (
+                  <div style={ui.warning}>
+                    Your time is up. You can no longer submit this challenge.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {submission && (
+              <div style={ui.card}>
+                <h2 style={ui.sectionTitle}>Submission Saved</h2>
+                <div style={{ display: "grid", gap: "12px", marginTop: "16px" }}>
+                  <div style={ui.infoBox}>
+                    <strong>Submission ID:</strong> {submission.id}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Status:</strong> {submission.status}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Submitted At:</strong> {submission.submittedAt}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Score:</strong> {submission.score ?? "Pending"}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {feedback && (
+              <div style={ui.card}>
+                <h2 style={ui.sectionTitle}>AI Feedback</h2>
+                <div style={{ display: "grid", gap: "12px", marginTop: "16px" }}>
+                  <div style={ui.infoBox}>
+                    <strong>AI Score:</strong> {feedback.aiScore}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Summary:</strong> {feedback.summary}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Strengths:</strong> {feedback.strengths}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Weaknesses:</strong> {feedback.weaknesses}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Recommendations:</strong> {feedback.recommendations}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Status:</strong> {feedback.status}
+                  </div>
+                </div>
+              </div>
+            )}
+          </aside>
+        </section>
       </div>
-
-      {/* Session Info */}
-      <div style={styles.card}>
-        <p>
-          <strong>Session ID:</strong> {session.id}
-        </p>
-        <p>
-          <strong>Time Left:</strong>{" "}
-          {sessionExpired ? "Expired" : timeLeft || "Loading timer..."}
-        </p>
-      </div>
-
-      {/* Expired Warning */}
-      {sessionExpired && (
-        <div style={{ ...styles.card, ...styles.expiredCard }}>
-          <h3>Session Expired</h3>
-          <p>Your time is up. You can no longer submit this challenge.</p>
-        </div>
-      )}
-
-      {/* Challenge Info */}
-      <div style={styles.card}>
-        <h3>{challenge.title}</h3>
-        <p>{challenge.description || "No description"}</p>
-        <p>
-          <strong>Difficulty:</strong> {challenge.difficulty}
-        </p>
-        <p>
-          <strong>Category:</strong> {challenge.category}
-        </p>
-        <p>
-          <strong>Time Limit:</strong>{" "}
-          {challenge.timeLimitMinutes || 30} minutes
-        </p>
-      </div>
-
-      {/* Code Editor */}
-      <form onSubmit={handleSubmit} style={styles.card}>
-        <label>Your Code</label>
-
-        <textarea
-          style={styles.textarea}
-          rows="18"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          placeholder="Write your coding solution here..."
-          disabled={sessionExpired}
-        />
-
-        {error && <p style={styles.error}>{error}</p>}
-
-        <button
-          style={{ ...styles.button, marginTop: "10px" }}
-          type="submit"
-          disabled={submitting || sessionExpired || !code.trim()}
-        >
-          {sessionExpired
-            ? "Session Expired"
-            : submitting
-            ? "Submitting..."
-            : "Submit Solution"}
-        </button>
-      </form>
-
-      {/* Submission */}
-      {submission && (
-        <div style={styles.card}>
-          <h3>Submission Saved</h3>
-          <p>
-            <strong>Submission ID:</strong> {submission.id}
-          </p>
-          <p>
-            <strong>Status:</strong> {submission.status}
-          </p>
-          <p>
-            <strong>Submitted At:</strong> {submission.submittedAt}
-          </p>
-          <p>
-            <strong>Score:</strong> {submission.score ?? "Pending"}
-          </p>
-        </div>
-      )}
-
-      {/* Feedback */}
-      {feedback && (
-        <div style={styles.card}>
-          <h3>AI Feedback</h3>
-          <p>
-            <strong>AI Score:</strong> {feedback.aiScore}
-          </p>
-          <p>
-            <strong>Summary:</strong> {feedback.summary}
-          </p>
-          <p>
-            <strong>Strengths:</strong> {feedback.strengths}
-          </p>
-          <p>
-            <strong>Weaknesses:</strong> {feedback.weaknesses}
-          </p>
-          <p>
-            <strong>Recommendations:</strong> {feedback.recommendations}
-          </p>
-          <p>
-            <strong>Status:</strong> {feedback.status}
-          </p>
-        </div>
-      )}
     </div>
   );
 }

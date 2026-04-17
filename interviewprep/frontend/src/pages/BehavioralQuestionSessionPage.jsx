@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import api from "../services/api";
+import { ui } from "../styles/ui";
 
 export default function BehavioralQuestionSessionPage() {
   const { sessionId } = useParams();
@@ -48,9 +49,7 @@ export default function BehavioralQuestionSessionPage() {
 
   const fetchFeedback = async (submissionId) => {
     try {
-      const response = await api.get(
-        `/api/feedback/behavioral-submission/${submissionId}`
-      );
+      const response = await api.get(`/api/feedback/behavioral-submission/${submissionId}`);
       setFeedback(response.data);
     } catch (err) {
       console.error(err);
@@ -98,192 +97,155 @@ export default function BehavioralQuestionSessionPage() {
     }
   };
 
-  const styles = {
-    page: {
-      maxWidth: "1000px",
-      margin: "40px auto",
-      padding: "20px",
-      fontFamily: "Arial, sans-serif",
-      color: "#1f2937",
-    },
-
-    title: {
-      textAlign: "center",
-      fontSize: "28px",
-      marginBottom: "20px",
-    },
-
-    topBar: {
-      marginBottom: "16px",
-    },
-
-    button: {
-      padding: "10px 14px",
-      border: "none",
-      borderRadius: "8px",
-      cursor: "pointer",
-      backgroundColor: "#111827",
-      color: "white",
-      transition: "0.2s ease",
-    },
-
-    card: {
-      background: "white",
-      borderRadius: "12px",
-      padding: "18px",
-      marginBottom: "16px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-    },
-
-    expiredCard: {
-      border: "1px solid #ef4444",
-    },
-
-    textarea: {
-      width: "100%",
-      marginTop: "10px",
-      padding: "10px",
-      borderRadius: "8px",
-      border: "1px solid #d1d5db",
-      fontFamily: "inherit",
-      fontSize: "14px",
-      resize: "vertical",
-    },
-
-    error: {
-      color: "red",
-      marginTop: "10px",
-    },
-  };
-
   if (!session || !question) {
     return (
-      <div style={styles.page}>
-        <p>
-          Session or question data is missing. Go back and start again.
-        </p>
-        <button
-          style={styles.button}
-          onClick={() => navigate("/behavioral-questions")}
-        >
-          Back to Questions
-        </button>
+      <div style={ui.page}>
+        <div style={ui.container}>
+          <div style={ui.card}>
+            <p>Session or question data is missing. Go back and start again.</p>
+            <button style={ui.button} onClick={() => navigate("/behavioral-questions")}>
+              Back to Questions
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={styles.page}>
-      <h2 style={styles.title}>Behavioral Session</h2>
+    <div style={ui.page}>
+      <div style={ui.container}>
+        <section style={ui.hero}>
+          <div style={ui.topRow}>
+            <div>
+              <h1 style={ui.heroTitle}>Behavioral Session</h1>
+              <p style={ui.heroSubtitle}>
+                Write your answer using a clear STAR structure and submit it before time runs out.
+              </p>
+            </div>
 
-      <div style={styles.topBar}>
-        <button
-          style={styles.button}
-          onClick={() => navigate("/behavioral-questions")}
-        >
-          Back to Questions
-        </button>
+            <button style={ui.secondaryButton} onClick={() => navigate("/behavioral-questions")}>
+              Back to Questions
+            </button>
+          </div>
+        </section>
+
+        <section style={ui.grid2}>
+          <div style={{ display: "grid", gap: "20px" }}>
+            <div style={ui.card}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+                <h2 style={ui.sectionTitle}>{question.category}</h2>
+                <span style={ui.badge}>{question.difficulty}</span>
+              </div>
+
+              <p style={{ ...ui.muted, lineHeight: 1.7, margin: "14px 0 0" }}>
+                {question.questionText}
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} style={ui.card}>
+              <label style={ui.label}>Your Response</label>
+
+              <textarea
+                style={{ ...ui.textarea, minHeight: "340px" }}
+                rows="14"
+                value={responseText}
+                onChange={(e) => setResponseText(e.target.value)}
+                placeholder="Write your response using STAR..."
+                disabled={sessionExpired}
+              />
+
+              {error && <div style={ui.error}>{error}</div>}
+
+              <div style={{ marginTop: "16px" }}>
+                <button
+                  style={ui.button}
+                  type="submit"
+                  disabled={submitting || sessionExpired || !responseText.trim()}
+                >
+                  {sessionExpired
+                    ? "Session Expired"
+                    : submitting
+                    ? "Submitting..."
+                    : "Submit Response"}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <aside style={{ display: "grid", gap: "20px" }}>
+            <div style={ui.card}>
+              <h2 style={ui.sectionTitle}>Session Status</h2>
+
+              <div style={{ display: "grid", gap: "12px", marginTop: "16px" }}>
+                <div style={ui.infoBox}>
+                  <p style={ui.statLabel}>Session ID</p>
+                  <p style={{ margin: "6px 0 0", fontWeight: 700 }}>{session.id}</p>
+                </div>
+
+                <div style={ui.infoBox}>
+                  <p style={ui.statLabel}>Time Left</p>
+                  <p style={{ margin: "6px 0 0", fontWeight: 700, fontSize: "20px" }}>
+                    {sessionExpired ? "Expired" : timeLeft || "Loading timer..."}
+                  </p>
+                </div>
+
+                {sessionExpired && (
+                  <div style={ui.warning}>
+                    Your time is up. You can no longer submit this response.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {submission && (
+              <div style={ui.card}>
+                <h2 style={ui.sectionTitle}>Submission Saved</h2>
+                <div style={{ display: "grid", gap: "12px", marginTop: "16px" }}>
+                  <div style={ui.infoBox}>
+                    <strong>Submission ID:</strong> {submission.id}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Status:</strong> {submission.status}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Submitted At:</strong> {submission.submittedAt}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Score:</strong> {submission.score ?? "Pending"}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {feedback && (
+              <div style={ui.card}>
+                <h2 style={ui.sectionTitle}>AI Feedback</h2>
+                <div style={{ display: "grid", gap: "12px", marginTop: "16px" }}>
+                  <div style={ui.infoBox}>
+                    <strong>AI Score:</strong> {feedback.aiScore}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Summary:</strong> {feedback.summary}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Strengths:</strong> {feedback.strengths}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Weaknesses:</strong> {feedback.weaknesses}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Recommendations:</strong> {feedback.recommendations}
+                  </div>
+                  <div style={ui.infoBox}>
+                    <strong>Status:</strong> {feedback.status}
+                  </div>
+                </div>
+              </div>
+            )}
+          </aside>
+        </section>
       </div>
-
-      {/* Session Info */}
-      <div style={styles.card}>
-        <p>
-          <strong>Session ID:</strong> {session.id}
-        </p>
-        <p>
-          <strong>Time Left:</strong>{" "}
-          {sessionExpired ? "Expired" : timeLeft || "Loading timer..."}
-        </p>
-      </div>
-
-      {/* Expired Warning */}
-      {sessionExpired && (
-        <div style={{ ...styles.card, ...styles.expiredCard }}>
-          <h3>Session Expired</h3>
-          <p>Your time is up. You can no longer submit this response.</p>
-        </div>
-      )}
-
-      {/* Question Card */}
-      <div style={styles.card}>
-        <h3>{question.category}</h3>
-        <p>{question.questionText}</p>
-        <p>
-          <strong>Difficulty:</strong> {question.difficulty}
-        </p>
-      </div>
-
-      {/* Form */}
-      <form onSubmit={handleSubmit} style={styles.card}>
-        <label>Your Response</label>
-
-        <textarea
-          style={styles.textarea}
-          rows="12"
-          value={responseText}
-          onChange={(e) => setResponseText(e.target.value)}
-          placeholder="Write your response using STAR..."
-          disabled={sessionExpired}
-        />
-
-        {error && <p style={styles.error}>{error}</p>}
-
-        <button
-          style={{ ...styles.button, marginTop: "10px" }}
-          type="submit"
-          disabled={submitting || sessionExpired || !responseText.trim()}
-        >
-          {sessionExpired
-            ? "Session Expired"
-            : submitting
-            ? "Submitting..."
-            : "Submit Response"}
-        </button>
-      </form>
-
-      {/* Submission */}
-      {submission && (
-        <div style={styles.card}>
-          <h3>Submission Saved</h3>
-          <p>
-            <strong>Submission ID:</strong> {submission.id}
-          </p>
-          <p>
-            <strong>Status:</strong> {submission.status}
-          </p>
-          <p>
-            <strong>Submitted At:</strong> {submission.submittedAt}
-          </p>
-          <p>
-            <strong>Score:</strong> {submission.score ?? "Pending"}
-          </p>
-        </div>
-      )}
-
-      {/* Feedback */}
-      {feedback && (
-        <div style={styles.card}>
-          <h3>AI Feedback</h3>
-          <p>
-            <strong>AI Score:</strong> {feedback.aiScore}
-          </p>
-          <p>
-            <strong>Summary:</strong> {feedback.summary}
-          </p>
-          <p>
-            <strong>Strengths:</strong> {feedback.strengths}
-          </p>
-          <p>
-            <strong>Weaknesses:</strong> {feedback.weaknesses}
-          </p>
-          <p>
-            <strong>Recommendations:</strong> {feedback.recommendations}
-          </p>
-          <p>
-            <strong>Status:</strong> {feedback.status}
-          </p>
-        </div>
-      )}
     </div>
   );
 }

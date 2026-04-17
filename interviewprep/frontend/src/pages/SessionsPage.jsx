@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { useAuthContext } from "../context/AuthContext";
+import { ui } from "../styles/ui";
 
 function EmptyState({ text }) {
-  return <p style={{ margin: 0, color: "#6b7280" }}>{text}</p>;
+  return <p style={{ margin: 0, color: "#64748b" }}>{text}</p>;
 }
 
 export default function SessionsPage() {
@@ -50,199 +51,84 @@ export default function SessionsPage() {
     };
   }, [logout, navigate]);
 
-  const styles = {
-    page: {
-      maxWidth: "1100px",
-      margin: "40px auto",
-      padding: "20px",
-      fontFamily: "Arial, sans-serif",
-      color: "#1f2937",
-    },
-
-    header: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      flexWrap: "wrap",
-      gap: "16px",
-      marginBottom: "24px",
-    },
-
-    title: {
-      margin: 0,
-      fontSize: "32px",
-    },
-
-    subtitle: {
-      margin: "6px 0 0",
-      color: "#6b7280",
-    },
-
-    button: {
-      border: "none",
-      background: "#111827",
-      color: "#fff",
-      padding: "10px 14px",
-      borderRadius: "8px",
-      cursor: "pointer",
-    },
-
-    grid: {
-      display: "grid",
-      gap: "16px",
-    },
-
-    card: {
-      background: "#fff",
-      borderRadius: "12px",
-      padding: "18px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-    },
-
-    cardHeader: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: "12px",
-      flexWrap: "wrap",
-      gap: "10px",
-    },
-
-    cardTitle: {
-      margin: 0,
-      fontSize: "18px",
-    },
-
-    badge: {
-      padding: "6px 10px",
-      borderRadius: "999px",
-      background: "#ecfeff",
-      color: "#155e75",
-      fontWeight: 600,
-      fontSize: "12px",
-    },
-
-    infoGrid: {
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-      gap: "12px",
-    },
-
-    box: {
-      background: "#f9fafb",
-      border: "1px solid #e5e7eb",
-      borderRadius: "10px",
-      padding: "12px",
-    },
-
-    label: {
-      margin: 0,
-      fontSize: "12px",
-      color: "#6b7280",
-      fontWeight: 600,
-    },
-
-    value: {
-      margin: "4px 0 0",
-      fontSize: "14px",
-      fontWeight: 500,
-      color: "#111827",
-    },
-
-    message: {
-      background: "#fff",
-      borderRadius: "12px",
-      padding: "14px",
-      border: "1px solid #ececec",
-    },
-
-    error: {
-      color: "crimson",
-    },
-  };
-
   return (
-    <div style={styles.page}>
-      {/* HEADER */}
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>Sessions</h1>
-          <p style={styles.subtitle}>
-            Track your interview practice sessions.
-          </p>
-        </div>
-
-        <button style={styles.button} onClick={() => navigate("/dashboard")}>
-          Back to Dashboard
-        </button>
-      </div>
-
-      {/* LOADING */}
-      {loading && (
-        <div style={styles.message}>
-          <p style={{ margin: 0 }}>Loading sessions...</p>
-        </div>
-      )}
-
-      {/* ERROR */}
-      {!loading && error && (
-        <div style={styles.message}>
-          <p style={styles.error}>{error}</p>
-        </div>
-      )}
-
-      {/* EMPTY */}
-      {!loading && !error && sessions.length === 0 && (
-        <div style={styles.message}>
-          <EmptyState text="No sessions yet." />
-        </div>
-      )}
-
-      {/* LIST */}
-      {!loading && !error && sessions.length > 0 && (
-        <div style={styles.grid}>
-          {sessions.map((session, index) => (
-            <div key={session.id ?? index} style={styles.card}>
-              {/* HEADER ROW */}
-              <div style={styles.cardHeader}>
-                <h2 style={styles.cardTitle}>
-                  Session #{session.id ?? index + 1}
-                </h2>
-
-                <span style={styles.badge}>
-                  {session.status || "ACTIVE"}
-                </span>
-              </div>
-
-              {/* INFO GRID */}
-              <div style={styles.infoGrid}>
-                <div style={styles.box}>
-                  <p style={styles.label}>Type</p>
-                  <p style={styles.value}>{session.type || "N/A"}</p>
-                </div>
-
-                <div style={styles.box}>
-                  <p style={styles.label}>Started</p>
-                  <p style={styles.value}>
-                    {session.startedAt
-                      ? new Date(session.startedAt).toLocaleString()
-                      : "N/A"}
-                  </p>
-                </div>
-
-                <div style={styles.box}>
-                  <p style={styles.label}>Expires</p>
-                  <p style={styles.value}>
-                    {session.expiresAt
-                      ? new Date(session.expiresAt).toLocaleString()
-                      : "N/A"}
-                  </p>
-                </div>
-              </div>
+    <div style={ui.page}>
+      <div style={ui.container}>
+        <section style={ui.hero}>
+          <div style={ui.topRow}>
+            <div>
+              <h1 style={ui.heroTitle}>Sessions</h1>
+              <p style={ui.heroSubtitle}>
+                Track your practice sessions, expiration times, and current statuses.
+              </p>
             </div>
-          ))}
-        </div>
-      )}
+
+            <button style={ui.secondaryButton} onClick={() => navigate("/dashboard")}>
+              Back to Dashboard
+            </button>
+          </div>
+        </section>
+
+        {loading && <div style={ui.card}>Loading sessions...</div>}
+
+        {!loading && error && <div style={ui.error}>{error}</div>}
+
+        {!loading && !error && sessions.length === 0 && (
+          <div style={ui.card}>
+            <EmptyState text="No sessions yet." />
+          </div>
+        )}
+
+        {!loading && !error && sessions.length > 0 && (
+          <section style={ui.gridCards}>
+            {sessions.map((session, index) => (
+              <article key={session.id ?? index} style={ui.card}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+                  <h2 style={{ margin: 0, fontSize: "22px" }}>
+                    Session #{session.id ?? index + 1}
+                  </h2>
+
+                  <span style={ui.badge}>{session.status || "ACTIVE"}</span>
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                    gap: "12px",
+                    marginTop: "16px",
+                  }}
+                >
+                  <div style={ui.infoBox}>
+                    <p style={ui.statLabel}>Type</p>
+                    <p style={{ margin: "6px 0 0", fontWeight: 700 }}>
+                      {session.type || "N/A"}
+                    </p>
+                  </div>
+
+                  <div style={ui.infoBox}>
+                    <p style={ui.statLabel}>Started</p>
+                    <p style={{ margin: "6px 0 0", fontWeight: 700 }}>
+                      {session.startedAt
+                        ? new Date(session.startedAt).toLocaleString()
+                        : "N/A"}
+                    </p>
+                  </div>
+
+                  <div style={ui.infoBox}>
+                    <p style={ui.statLabel}>Expires</p>
+                    <p style={{ margin: "6px 0 0", fontWeight: 700 }}>
+                      {session.expiresAt
+                        ? new Date(session.expiresAt).toLocaleString()
+                        : "N/A"}
+                    </p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </section>
+        )}
+      </div>
     </div>
   );
 }

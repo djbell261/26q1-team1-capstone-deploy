@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { useAuthContext } from "../context/AuthContext";
+import { ui } from "../styles/ui";
 
 function EmptyState({ text }) {
-  return <p style={{ margin: 0, color: "#6b7280" }}>{text}</p>;
+  return <p style={{ margin: 0, color: "#64748b" }}>{text}</p>;
 }
 
 export default function RecommendationPage() {
@@ -51,208 +52,92 @@ export default function RecommendationPage() {
     };
   }, [logout, navigate]);
 
-  const styles = {
-    page: {
-      maxWidth: "1100px",
-      margin: "40px auto",
-      padding: "20px",
-      fontFamily: "Arial, sans-serif",
-      color: "#1f2937",
-    },
-
-    header: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      flexWrap: "wrap",
-      gap: "16px",
-      marginBottom: "24px",
-    },
-
-    title: {
-      fontSize: "32px",
-      margin: 0,
-    },
-
-    subtitle: {
-      margin: "6px 0 0",
-      color: "#6b7280",
-    },
-
-    button: {
-      border: "none",
-      background: "#111827",
-      color: "#fff",
-      padding: "10px 14px",
-      borderRadius: "8px",
-      cursor: "pointer",
-    },
-
-    grid: {
-      display: "grid",
-      gap: "16px",
-    },
-
-    card: {
-      background: "#fff",
-      borderRadius: "12px",
-      padding: "18px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-    },
-
-    badge: {
-      padding: "6px 10px",
-      borderRadius: "999px",
-      background: "#ecfeff",
-      color: "#155e75",
-      fontWeight: 600,
-      fontSize: "12px",
-      whiteSpace: "nowrap",
-    },
-
-    sectionTitle: {
-      margin: "0 0 8px",
-      fontSize: "18px",
-    },
-
-    box: {
-      background: "#f9fafb",
-      border: "1px solid #e5e7eb",
-      borderRadius: "10px",
-      padding: "12px",
-    },
-
-    label: {
-      margin: 0,
-      fontSize: "12px",
-      color: "#6b7280",
-      fontWeight: 600,
-    },
-
-    value: {
-      margin: "4px 0 0",
-      fontSize: "14px",
-      color: "#111827",
-    },
-
-    error: {
-      color: "crimson",
-    },
-  };
-
   return (
-    <div style={styles.page}>
-      {/* HEADER */}
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>Recommendations</h1>
-          <p style={styles.subtitle}>
-            Your personalized interview prep guidance.
-          </p>
-        </div>
-
-        <button style={styles.button} onClick={() => navigate("/dashboard")}>
-          Back to Dashboard
-        </button>
-      </div>
-
-      {/* LOADING */}
-      {loading && (
-        <div style={styles.card}>
-          <p style={{ margin: 0 }}>Loading recommendations...</p>
-        </div>
-      )}
-
-      {/* ERROR */}
-      {!loading && error && (
-        <div style={styles.card}>
-          <p style={styles.error}>{error}</p>
-        </div>
-      )}
-
-      {/* EMPTY */}
-      {!loading && !error && recommendations.length === 0 && (
-        <div style={styles.card}>
-          <EmptyState text="No recommendations yet." />
-        </div>
-      )}
-
-      {/* LIST */}
-      {!loading && !error && recommendations.length > 0 && (
-        <div style={styles.grid}>
-          {recommendations.map((rec, index) => (
-            <div key={rec.id ?? index} style={styles.card}>
-              {/* TOP ROW */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  marginBottom: "12px",
-                  gap: "12px",
-                }}
-              >
-                <div>
-                  <h2 style={styles.sectionTitle}>
-                    {rec.recommended ||
-                      `Recommendation #${rec.id ?? index + 1}`}
-                  </h2>
-
-                  <p style={{ margin: "4px 0 0", color: "#6b7280" }}>
-                    User ID: {rec.userId ?? rec.user?.id ?? "N/A"}
-                  </p>
-                </div>
-
-                <span style={styles.badge}>Personalized</span>
-              </div>
-
-              {/* RECOMMENDATION */}
-              <div style={{ marginBottom: "12px" }}>
-                <p style={styles.label}>Recommendation</p>
-                <p style={styles.value}>
-                  {rec.recommended || "Untitled Recommendation"}
-                </p>
-              </div>
-
-              {/* REASON */}
-              <div style={{ marginBottom: "12px" }}>
-                <p style={styles.label}>Reason</p>
-                <div style={styles.box}>
-                  <p style={{ margin: 0, lineHeight: 1.6 }}>
-                    {rec.reason || "No reason provided."}
-                  </p>
-                </div>
-              </div>
-
-              {/* META */}
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns:
-                    "repeat(auto-fit, minmax(180px, 1fr))",
-                  gap: "12px",
-                }}
-              >
-                <div style={styles.box}>
-                  <p style={styles.label}>Created</p>
-                  <p style={styles.value}>
-                    {rec.createdAt
-                      ? new Date(rec.createdAt).toLocaleString()
-                      : "N/A"}
-                  </p>
-                </div>
-
-                <div style={styles.box}>
-                  <p style={styles.label}>User ID</p>
-                  <p style={styles.value}>
-                    {rec.userId ?? rec.user?.id ?? "N/A"}
-                  </p>
-                </div>
-              </div>
+    <div style={ui.page}>
+      <div style={ui.container}>
+        <section style={ui.hero}>
+          <div style={ui.topRow}>
+            <div>
+              <h1 style={ui.heroTitle}>Recommendations</h1>
+              <p style={ui.heroSubtitle}>
+                Personalized interview prep guidance based on your recent activity and performance.
+              </p>
             </div>
-          ))}
-        </div>
-      )}
+
+            <button style={ui.secondaryButton} onClick={() => navigate("/dashboard")}>
+              Back to Dashboard
+            </button>
+          </div>
+        </section>
+
+        {loading && <div style={ui.card}>Loading recommendations...</div>}
+
+        {!loading && error && <div style={ui.error}>{error}</div>}
+
+        {!loading && !error && recommendations.length === 0 && (
+          <div style={ui.card}>
+            <EmptyState text="No recommendations yet." />
+          </div>
+        )}
+
+        {!loading && !error && recommendations.length > 0 && (
+          <section style={ui.gridCards}>
+            {recommendations.map((rec, index) => (
+              <article key={rec.id ?? index} style={ui.card}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "flex-start" }}>
+                  <div>
+                    <h2 style={{ margin: 0, fontSize: "22px" }}>
+                      {rec.recommended || `Recommendation #${rec.id ?? index + 1}`}
+                    </h2>
+                    <p style={{ margin: "8px 0 0", ...ui.muted }}>
+                      User ID: {rec.userId ?? rec.user?.id ?? "N/A"}
+                    </p>
+                  </div>
+
+                  <span style={ui.badge}>Personalized</span>
+                </div>
+
+                <div style={{ marginTop: "18px" }}>
+                  <p style={ui.statLabel}>Recommendation</p>
+                  <div style={{ ...ui.infoBox, marginTop: "8px" }}>
+                    {rec.recommended || "Untitled Recommendation"}
+                  </div>
+                </div>
+
+                <div style={{ marginTop: "14px" }}>
+                  <p style={ui.statLabel}>Reason</p>
+                  <div style={{ ...ui.infoBox, marginTop: "8px", lineHeight: 1.7 }}>
+                    {rec.reason || "No reason provided."}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                    gap: "12px",
+                    marginTop: "14px",
+                  }}
+                >
+                  <div style={ui.infoBox}>
+                    <p style={ui.statLabel}>Created</p>
+                    <p style={{ margin: "6px 0 0", fontWeight: 700 }}>
+                      {rec.createdAt ? new Date(rec.createdAt).toLocaleString() : "N/A"}
+                    </p>
+                  </div>
+
+                  <div style={ui.infoBox}>
+                    <p style={ui.statLabel}>User ID</p>
+                    <p style={{ margin: "6px 0 0", fontWeight: 700 }}>
+                      {rec.userId ?? rec.user?.id ?? "N/A"}
+                    </p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </section>
+        )}
+      </div>
     </div>
   );
 }

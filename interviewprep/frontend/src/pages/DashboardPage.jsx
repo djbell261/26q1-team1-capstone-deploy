@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { ui } from "../styles/ui";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -42,160 +43,167 @@ export default function DashboardPage() {
     navigate("/login");
   };
 
-  const styles = {
-    page: {
-      maxWidth: "1100px",
-      margin: "40px auto",
-      padding: "20px",
-      fontFamily: "Arial, sans-serif",
-      color: "#1f2937",
-    },
-
-    header: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      flexWrap: "wrap",
-      gap: "16px",
-      marginBottom: "20px",
-    },
-
-    title: {
-      fontSize: "32px",
-      margin: 0,
-    },
-
-    subtitle: {
-      color: "#6b7280",
-      marginTop: "4px",
-    },
-
-    button: {
-      padding: "10px 14px",
-      border: "none",
-      borderRadius: "8px",
-      cursor: "pointer",
-      backgroundColor: "#111827",
-      color: "white",
-    },
-
-    grid: {
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-      gap: "16px",
-      marginBottom: "20px",
-    },
-
-    card: {
-      background: "white",
-      borderRadius: "12px",
-      padding: "18px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-    },
-
-    section: {
-      background: "white",
-      borderRadius: "12px",
-      padding: "18px",
-      marginBottom: "16px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-    },
-
-    quickActions: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "12px",
-      marginTop: "10px",
-    },
-
-    error: {
-      color: "red",
-      marginBottom: "10px",
-    },
-  };
-
   if (!performance || !user) {
     return (
-      <div style={styles.page}>
-        {error ? <p style={styles.error}>{error}</p> : <p>Loading dashboard...</p>}
+      <div style={ui.page}>
+        <div style={ui.container}>
+          <div style={ui.card}>
+            {error ? <div style={ui.error}>{error}</div> : <p>Loading dashboard...</p>}
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={styles.page}>
-      {/* HEADER */}
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>Dashboard</h1>
-          <p style={styles.subtitle}>Welcome back, {user.name}.</p>
-        </div>
+    <div style={ui.page}>
+      <div style={ui.container}>
+        <section style={ui.hero}>
+          <div style={ui.topRow}>
+            <div>
+              <h1 style={ui.heroTitle}>Interview Prep Dashboard</h1>
+              <p style={ui.heroSubtitle}>
+                Welcome back, {user.name}. Practice technical and behavioral
+                interviews, review AI feedback, and track your progress over time.
+              </p>
+            </div>
 
-        <button style={styles.button} onClick={logout}>
-          Logout
-        </button>
-      </div>
+            <button style={ui.secondaryButton} onClick={logout}>
+              Logout
+            </button>
+          </div>
+        </section>
 
-      {/* STATS GRID */}
-      <div style={styles.grid}>
-        <div style={styles.card}>
-          <h3>Avg Coding Score</h3>
-          <p>{performance.averageCodingScore ?? 0}</p>
-        </div>
+        {error && <div style={ui.error}>{error}</div>}
 
-        <div style={styles.card}>
-          <h3>Avg Behavioral Score</h3>
-          <p>{performance.averageBehavioralScore ?? 0}</p>
-        </div>
+        <section style={ui.statGrid}>
+          <div style={ui.statCard}>
+            <p style={ui.statLabel}>Avg Coding Score</p>
+            <p style={ui.statValue}>{performance.averageCodingScore ?? 0}</p>
+          </div>
 
-        <div style={styles.card}>
-          <h3>Overall Score</h3>
-          <p>{performance.overallScore ?? 0}</p>
-        </div>
+          <div style={ui.statCard}>
+            <p style={ui.statLabel}>Avg Behavioral Score</p>
+            <p style={ui.statValue}>{performance.averageBehavioralScore ?? 0}</p>
+          </div>
 
-        <div style={styles.card}>
-          <h3>Recommendations</h3>
-          <p>{recommendations.length}</p>
-        </div>
-      </div>
+          <div style={ui.statCard}>
+            <p style={ui.statLabel}>Overall Score</p>
+            <p style={ui.statValue}>{performance.overallScore ?? 0}</p>
+          </div>
 
-      {/* PROFILE */}
-      <div style={styles.section}>
-        <h3>Profile</h3>
-        <p><strong>Name:</strong> {user.name}</p>
-        <p><strong>Email:</strong> {user.email}</p>
-        <p><strong>Role:</strong> {user.role}</p>
-      </div>
+          <div style={ui.statCard}>
+            <p style={ui.statLabel}>Recommendations</p>
+            <p style={ui.statValue}>{recommendations.length}</p>
+          </div>
+        </section>
 
-      {/* QUICK ACTIONS */}
-      <div style={styles.section}>
-        <h3>Quick Actions</h3>
+        <section style={ui.grid2}>
+          <div style={{ display: "grid", gap: "20px" }}>
+            <div style={ui.card}>
+              <h2 style={ui.sectionTitle}>Quick Actions</h2>
+              <p style={ui.sectionSubtitle}>
+                Start practice sessions, view submissions, and review recommendations.
+              </p>
 
-        <div style={styles.quickActions}>
-          <button style={styles.button} onClick={() => navigate("/coding-challenges")}>
-            Start Coding Practice
-          </button>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                  gap: "14px",
+                  marginTop: "18px",
+                }}
+              >
+                <button style={ui.button} onClick={() => navigate("/coding-challenges")}>
+                  Start Coding Practice
+                </button>
 
-          <button style={styles.button} onClick={() => navigate("/behavioral-questions")}>
-            Start Behavioral Practice
-          </button>
+                <button style={ui.button} onClick={() => navigate("/behavioral-questions")}>
+                  Start Behavioral Practice
+                </button>
 
-          <button style={styles.button} onClick={() => navigate("/sessions")}>
-            View Sessions
-          </button>
+                <button style={ui.secondaryButton} onClick={() => navigate("/sessions")}>
+                  View Sessions
+                </button>
 
-          <button style={styles.button} onClick={() => navigate("/coding-submissions")}>
-            View Coding Submissions
-          </button>
+                <button style={ui.secondaryButton} onClick={() => navigate("/coding-submissions")}>
+                  Coding Submissions
+                </button>
 
-          <button style={styles.button} onClick={() => navigate("/behavioral-submissions")}>
-            View Behavioral Submissions
-          </button>
+                <button style={ui.secondaryButton} onClick={() => navigate("/behavioral-submissions")}>
+                  Behavioral Submissions
+                </button>
 
-          <button style={styles.button} onClick={() => navigate("/recommendations")}>
-            View Recommendations
-          </button>
-        </div>
+                <button style={ui.secondaryButton} onClick={() => navigate("/recommendations")}>
+                  Recommendations
+                </button>
+              </div>
+            </div>
+
+            <div style={ui.card}>
+              <h2 style={ui.sectionTitle}>Performance Snapshot</h2>
+              <p style={ui.sectionSubtitle}>
+                See how your practice is trending across both tracks.
+              </p>
+
+              <div style={{ ...ui.grid3, marginTop: "18px" }}>
+                <div style={ui.infoBox}>
+                  <p style={ui.statLabel}>Coding Track</p>
+                  <p style={{ margin: "8px 0 0", fontSize: "18px", fontWeight: 700 }}>
+                    {performance.averageCodingScore ?? 0}
+                  </p>
+                </div>
+
+                <div style={ui.infoBox}>
+                  <p style={ui.statLabel}>Behavioral Track</p>
+                  <p style={{ margin: "8px 0 0", fontSize: "18px", fontWeight: 700 }}>
+                    {performance.averageBehavioralScore ?? 0}
+                  </p>
+                </div>
+
+                <div style={ui.infoBox}>
+                  <p style={ui.statLabel}>Overall Readiness</p>
+                  <p style={{ margin: "8px 0 0", fontSize: "18px", fontWeight: 700 }}>
+                    {performance.overallScore ?? 0}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside style={{ display: "grid", gap: "20px" }}>
+            <div style={ui.card}>
+              <h2 style={ui.sectionTitle}>Profile</h2>
+              <p style={ui.sectionSubtitle}>Your account overview.</p>
+
+              <div style={{ display: "grid", gap: "12px", marginTop: "18px" }}>
+                <div style={ui.infoBox}>
+                  <strong>Name:</strong> {user.name}
+                </div>
+                <div style={ui.infoBox}>
+                  <strong>Email:</strong> {user.email}
+                </div>
+                <div style={ui.infoBox}>
+                  <strong>Role:</strong> {user.role}
+                </div>
+              </div>
+            </div>
+
+            <div style={ui.card}>
+              <h2 style={ui.sectionTitle}>Practice Focus</h2>
+              <p style={ui.sectionSubtitle}>
+                Recommendations update as you complete more sessions and submissions.
+              </p>
+
+              <div style={{ marginTop: "18px", ...ui.infoBox }}>
+                <p style={ui.statLabel}>Current Recommendation Count</p>
+                <p style={{ margin: "8px 0 0", fontSize: "30px", fontWeight: 700 }}>
+                  {recommendations.length}
+                </p>
+              </div>
+            </div>
+          </aside>
+        </section>
       </div>
     </div>
   );

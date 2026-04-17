@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { ui } from "../styles/ui";
 
 export default function CodingChallengeLibraryPage() {
   const [challenges, setChallenges] = useState([]);
@@ -40,127 +41,99 @@ export default function CodingChallengeLibraryPage() {
       const session = response.data;
 
       navigate(`/coding-session/${session.id}`, {
-        state: {
-          session,
-          challenge,
-        },
+        state: { session, challenge },
       });
     } catch (err) {
       setError("Failed to start coding session.");
     }
   };
 
-  const styles = {
-    page: {
-      maxWidth: "1000px",
-      margin: "40px auto",
-      padding: "20px",
-      fontFamily: "Arial, sans-serif",
-      color: "#1f2937",
-    },
-
-    title: {
-      textAlign: "center",
-      fontSize: "28px",
-      marginBottom: "20px",
-    },
-
-    topBar: {
-      marginBottom: "16px",
-    },
-
-    button: {
-      padding: "10px 14px",
-      border: "none",
-      borderRadius: "8px",
-      cursor: "pointer",
-      backgroundColor: "#111827",
-      color: "white",
-    },
-
-    grid: {
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-      gap: "16px",
-      marginTop: "20px",
-    },
-
-    card: {
-      background: "white",
-      borderRadius: "12px",
-      padding: "18px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-      transition: "0.2s ease",
-    },
-
-    error: {
-      color: "red",
-      marginBottom: "10px",
-    },
-
-    mutedText: {
-      color: "#6b7280",
-    },
-  };
-
   if (loading) {
     return (
-      <div style={styles.page}>
-        <p>Loading coding challenges...</p>
+      <div style={ui.page}>
+        <div style={ui.container}>
+          <div style={ui.card}>Loading coding challenges...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={styles.page}>
-      <h2 style={styles.title}>Coding Challenge Library</h2>
-
-      {/* Top Button */}
-      <div style={styles.topBar}>
-        <button style={styles.button} onClick={() => navigate("/dashboard")}>
-          Back to Dashboard
-        </button>
-      </div>
-
-      {/* Error */}
-      {error && <p style={styles.error}>{error}</p>}
-
-      {/* Empty State */}
-      {challenges.length === 0 ? (
-        <p>No coding challenges found.</p>
-      ) : (
-        <div style={styles.grid}>
-          {challenges.map((challenge) => (
-            <div key={challenge.id} style={styles.card}>
-              <h3>{challenge.title}</h3>
-
-              <p style={styles.mutedText}>
-                {challenge.description || "No description"}
+    <div style={ui.page}>
+      <div style={ui.container}>
+        <section style={ui.hero}>
+          <div style={ui.topRow}>
+            <div>
+              <h1 style={ui.heroTitle}>Coding Challenge Library</h1>
+              <p style={ui.heroSubtitle}>
+                Choose a challenge, start a timed session, and get AI-powered feedback on your solution.
               </p>
-
-              <p>
-                <strong>Difficulty:</strong> {challenge.difficulty}
-              </p>
-
-              <p>
-                <strong>Category:</strong> {challenge.category}
-              </p>
-
-              <p>
-                <strong>Time Limit:</strong>{" "}
-                {challenge.timeLimitMinutes || 30} minutes
-              </p>
-
-              <button
-                style={{ ...styles.button, marginTop: "10px" }}
-                onClick={() => startSession(challenge)}
-              >
-                Start Challenge
-              </button>
             </div>
-          ))}
-        </div>
-      )}
+
+            <button style={ui.secondaryButton} onClick={() => navigate("/dashboard")}>
+              Back to Dashboard
+            </button>
+          </div>
+        </section>
+
+        {error && <div style={ui.error}>{error}</div>}
+
+        {challenges.length === 0 ? (
+          <div style={ui.card}>No coding challenges found.</div>
+        ) : (
+          <section style={ui.gridCards}>
+            {challenges.map((challenge) => (
+              <article
+                key={challenge.id}
+                style={{
+                  ...ui.card,
+                  display: "flex",
+                  flexDirection: "column",
+                  minHeight: "290px",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
+                  <h3 style={{ margin: 0, fontSize: "22px" }}>{challenge.title}</h3>
+                  <span style={ui.badge}>{challenge.difficulty}</span>
+                </div>
+
+                <p style={{ ...ui.muted, lineHeight: 1.7, margin: "14px 0 18px" }}>
+                  {challenge.description || "No description provided."}
+                </p>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                    gap: "12px",
+                    marginBottom: "18px",
+                  }}
+                >
+                  <div style={ui.infoBox}>
+                    <p style={ui.statLabel}>Category</p>
+                    <p style={{ margin: "6px 0 0", fontWeight: 700 }}>
+                      {challenge.category || "General"}
+                    </p>
+                  </div>
+
+                  <div style={ui.infoBox}>
+                    <p style={ui.statLabel}>Time Limit</p>
+                    <p style={{ margin: "6px 0 0", fontWeight: 700 }}>
+                      {challenge.timeLimitMinutes || 30} min
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: "auto" }}>
+                  <button style={ui.button} onClick={() => startSession(challenge)}>
+                    Start Challenge
+                  </button>
+                </div>
+              </article>
+            ))}
+          </section>
+        )}
+      </div>
     </div>
   );
 }
