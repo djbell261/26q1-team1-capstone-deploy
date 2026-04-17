@@ -76,6 +76,7 @@ export default function BehaviorSubmission() {
       marginBottom: "10px",
     },
   };
+  
 
   if (loading) {
     return (
