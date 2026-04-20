@@ -2,19 +2,13 @@ server:
   port: ${PORT:8080}
 
 spring:
-  datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
-
-spring:
   application:
     name: interviewprep
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/interviewprep
-    username: postgres
-    password: Noah2511
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
   jpa:
     hibernate:
@@ -24,23 +18,14 @@ spring:
       hibernate:
         format_sql: true
 
-# =========================
-# JWT CONFIG
-# =========================
 jwt:
   secret: your_super_secret_key_which_should_be_long_and_secure
-  expiration: 86400000 # 1 day in ms
+  expiration: 86400000
 
-# =========================
-# OPENAI CONFIG
-# =========================
 openai:
   api-key: ${OPENAI_API_KEY:dummy-key}
   model: gpt-4.1-mini
 
-# =========================
-# EXTERNAL CODING API
-# =========================
 external:
   challenge:
     api:
@@ -50,9 +35,6 @@ external:
       api-key:
       api-host:
 
-# =========================
-# LOGGING (optional but helpful)
-# =========================
 logging:
   level:
     org.springframework.web: INFO
