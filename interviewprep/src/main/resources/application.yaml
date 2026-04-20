@@ -1,14 +1,15 @@
 server:
-  port: ${PORT:8080}
+  port: ${PORT:8099}
 
 spring:
   application:
     name: interviewprep
 
+
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/interviewprep}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:Noah2511}
 
   jpa:
     hibernate:
