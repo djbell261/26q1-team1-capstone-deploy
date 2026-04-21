@@ -1,15 +1,23 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8099",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8099",
 });
 
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
 
-    if (token) {
+    const isAuthRoute =
+      config.url?.includes("/api/auth/login") ||
+      config.url?.includes("/api/auth/register") ||
+      config.url?.includes("/auth/login") ||
+      config.url?.includes("/auth/register");
+
+    if (token && !isAuthRoute) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else if (config.headers?.Authorization) {
+      delete config.headers.Authorization;
     }
 
     return config;
