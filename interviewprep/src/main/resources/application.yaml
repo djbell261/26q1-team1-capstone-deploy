@@ -5,11 +5,11 @@ spring:
   application:
     name: interviewprep
 
-
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/interviewprep}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:Noah2511}
+    url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
+    username: ${PGUSER}
+    password: ${PGPASSWORD}
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
@@ -17,27 +17,20 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 jwt:
-  secret: your_super_secret_key_which_should_be_long_and_secure
-  expiration: 86400000
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
 
 openai:
-  api-key: ${OPENAI_API_KEY:dummy-key}
-  model: gpt-4.1-mini
+  api-key: ${OPENAI_API_KEY:}
 
 external:
   challenge:
     api:
-      enabled: true
-      base-url: https://leetcode-api-pied.vercel.app
-      import-path: /problems
-      api-key:
-      api-host:
-
-logging:
-  level:
-    org.springframework.web: INFO
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+      base-url: ${EXTERNAL_CHALLENGE_API_BASE_URL:}
+      import-path: ${EXTERNAL_CHALLENGE_API_IMPORT_PATH:}
+      api-key: ${EXTERNAL_CHALLENGE_API_KEY:}
+      api-host: ${EXTERNAL_CHALLENGE_API_HOST:}
+      enabled: ${EXTERNAL_CHALLENGE_API_ENABLED:false}
