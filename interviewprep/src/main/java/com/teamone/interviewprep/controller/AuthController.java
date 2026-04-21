@@ -15,8 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @CrossOrigin(origins = {
-        "http://localhost:5173",
-        "https://26q1-team1-capstone-deploy.vercel.app"
+        "http://localhost:5173"
 })
 public class AuthController {
 
